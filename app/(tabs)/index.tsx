@@ -31,6 +31,18 @@ export default function HomeScreen() {
           <Text style={styles.loginButtonText}>NexTrade Giriş Paneli</Text>
         </TouchableOpacity>
       </ThemedView>
+      <TouchableOpacity style={{backgroundColor: 'red', margin: 20,}} onPress={() => router.push("/seller/products")}>
+        <Text>Ürünlerim</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={{backgroundColor: 'red', margin: 20,}} onPress={() => router.push("/admin/users")}>
+        <Text>Admin Kullanıcılar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={{backgroundColor: 'red', margin: 20,}} onPress={() => router.push("/admin/products")}>
+        <Text>Admin Ürünler</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={{backgroundColor: 'red', margin: 20,}} onPress={() => router.push("/admin/cms")}>
+        <Text>Admin CMS</Text>
+      </TouchableOpacity>
 
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>

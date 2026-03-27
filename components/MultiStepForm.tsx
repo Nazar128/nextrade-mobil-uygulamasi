@@ -1,236 +1,292 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   View, Text, TextInput, TouchableOpacity, ScrollView, 
-  Image, StyleSheet, Alert, ActivityIndicator 
+  Image, ActivityIndicator, Alert, StyleSheet, Modal, FlatList
 } from 'react-native';
-import { 
-  Package, DollarSign, CheckCircle2, 
-  ChevronRight, ChevronLeft, UploadCloud, Hash, FileText 
-} from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
-import { auth, db } from '@/api/firebase';;
-import { collection, addDoc, updateDoc, doc, serverTimestamp } from "firebase/firestore";
+import { db, storage, auth } from "../api/firebase";
+import { 
+  doc, updateDoc, collection, addDoc, 
+  serverTimestamp, onSnapshot 
+} from "firebase/firestore";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { 
+  Package, DollarSign, Image as ImageIcon, CheckCircle2, 
+  Camera, ChevronRight, ChevronLeft, UploadCloud, 
+  Hash, X
+} from 'lucide-react-native';
 
-export default function MultiStepForm({ onSuccess, initialData }: any) {
+export default function MultiStepMobileForm({ onSuccess, initialData }: any) {
   const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState<string | null>(initialData?.imageUrl || null);
-  
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(initialData?.sizes || []);
+  const [isUploading, setIsUploading] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(initialData?.imageUrl || null);
+  const [dbCategories, setDbCategories] = useState<any[]>([]);
+  const [showCatModal, setShowCatModal] = useState(false);
+  const [showSubCatModal, setShowSubCatModal] = useState(false);
+
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
+    categoryId: initialData?.categoryId || '',
+    subCategoryId: initialData?.subCategoryId || '',
     price: initialData?.price?.toString() || '',
     stock: initialData?.stock?.toString() || '',
     description: initialData?.description || '',
     brand: initialData?.brand || '',
     color: initialData?.color || '',
-    category: initialData?.category || 'Genel',
+    gender: initialData?.gender || 'Unisex',
+    pattern: initialData?.pattern || '', 
   });
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.5,
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "categories"), (snapshot) => {
+      setDbCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
+    return () => unsubscribe();
+  }, []);
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
+  const selectedCategoryData = useMemo(() => 
+    dbCategories.find(c => c.id === formData.categoryId) || null
+  , [formData.categoryId, dbCategories]);
+
+  const activeSubCategories = useMemo(() => 
+    selectedCategoryData?.subCategories || []
+  , [selectedCategoryData]);
+
+  const subCatTitle = useMemo(() => {
+    const sub = activeSubCategories.find((s: any) => String(s.id) === String(formData.subCategoryId));
+    return sub?.title || "Seçilmedi";
+  }, [formData.subCategoryId, activeSubCategories]);
+
+  const pickImage = async (useCamera: boolean) => {
+    const permission = useCamera 
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) return;
+    const result = useCamera 
+      ? await ImagePicker.launchCameraAsync({ allowsEditing: true, aspect: [1, 1], quality: 0.5 })
+      : await ImagePicker.launchImageLibraryAsync({ allowsEditing: true, aspect: [1, 1], quality: 0.5 });
+    if (!result.canceled) setImageUri(result.assets[0].uri);
   };
 
-  const handleSubmit = async () => {
-    if (!formData.title || !formData.price || !formData.stock) {
-      Alert.alert("Hata", "Lütfen zorunlu alanları doldurun.");
-      return;
-    }
+  const handleFinalSubmit = async () => {
+    const user = auth.currentUser;
+    if (!user) return Alert.alert("Hata", "Oturum kapalı.");
+    if (!formData.title) return Alert.alert("Hata", "Başlık gerekli.");
 
-    setLoading(true);
+    setIsUploading(true);
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("Oturum bulunamadı");
+      let finalImageUrl = imageUri || "";
+      if (imageUri && (imageUri.startsWith('file') || imageUri.startsWith('content'))) {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `products/${Date.now()}`);
+        const uploadTask = await uploadBytesResumable(storageRef, blob);
+        finalImageUrl = await getDownloadURL(uploadTask.ref);
+      }
 
-      const productData = {
-        ...formData,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
-        sellerId: user.uid,
-        imageUrl: image || "https://via.placeholder.com/150",
-        status: initialData ? initialData.status : 'pending',
+      const safeSlug = String(formData.title || "urun").toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+
+      const payload = {
+        title: String(formData.title || ""),
+        categoryId: String(formData.categoryId || ""),
+        subCategoryId: String(formData.subCategoryId || ""),
+        category: String(selectedCategoryData?.title || ""),
+        price: Number(formData.price) || 0,
+        stock: Number(formData.stock) || 0,
+        description: String(formData.description || ""),
+        brand: String(formData.brand || ""),
+        color: String(formData.color || ""),
+        gender: String(formData.gender || "Unisex"),
+        pattern: String(formData.pattern || ""),
+        sizes: selectedSizes,
+        imageUrl: finalImageUrl,
+        status: "pending",
         updatedAt: serverTimestamp(),
+        slug: safeSlug,
+        inStock: (Number(formData.stock) || 0) > 0
       };
 
       if (initialData?.id) {
-        await updateDoc(doc(db, "products", initialData.id), productData);
-        Alert.alert("Başarılı", "Ürün güncellendi.");
+        await updateDoc(doc(db, "products", initialData.id), payload);
       } else {
         await addDoc(collection(db, "products"), {
-          ...productData,
+          ...payload,
+          sellerId: user.uid,
           createdAt: serverTimestamp(),
+          salesCount: 0,
+          rating: 5
         });
-        Alert.alert("Başarılı", "Ürün onaya gönderildi.");
       }
-      
       onSuccess();
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Hata", "İşlem sırasında bir sorun oluştu.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (e: any) {
+      Alert.alert("Hata", "İşlem başarısız.");
+    } finally { setIsUploading(false); }
   };
 
-  const steps = [
-    { id: 1, name: "TEMEL", icon: Package },
-    { id: 2, name: "DETAY", icon: Hash },
-    { id: 3, name: "ONAY", icon: CheckCircle2 }
-  ];
-
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.stepIndicator}>
-        <View style={styles.progressLine} />
-        {steps.map((s) => (
-          <View key={s.id} style={styles.stepItem}>
-            <View style={[
-              styles.iconCircle, 
-              step >= s.id ? styles.activeCircle : styles.inactiveCircle
-            ]}>
-              <s.icon size={20} color={step >= s.id ? "#fff" : "#4b5563"} />
-            </View>
-            <Text style={[styles.stepText, step >= s.id && styles.activeStepText]}>{s.name}</Text>
-          </View>
-        ))}
+        <View style={styles.stepWrap}>
+          <View style={[styles.circle, step >= 1 && styles.circleAct]}>{step > 1 ? <CheckCircle2 size={16} color="white"/> : <Package size={16} color="white"/>}</View>
+          <Text style={styles.stepTxt}>Bilgi</Text>
+        </View>
+        <View style={styles.line}/>
+        <View style={styles.stepWrap}>
+          <View style={[styles.circle, step >= 2 && styles.circleAct]}>{step > 2 ? <CheckCircle2 size={16} color="white"/> : <Hash size={16} color="white"/>}</View>
+          <Text style={styles.stepTxt}>Detay</Text>
+        </View>
+        <View style={styles.line}/>
+        <View style={styles.stepWrap}>
+          <View style={[styles.circle, step >= 3 && styles.circleAct]}><ImageIcon size={16} color="white"/></View>
+          <Text style={styles.stepTxt}>Medya</Text>
+        </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.formContent}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {step === 1 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}><FileText size={18} color="#6366f1" /> Ürün Bilgileri</Text>
-            <TextInput 
-              style={styles.input}
-              placeholder="Ürün Başlığı *"
-              placeholderTextColor="#4b5563"
-              value={formData.title}
-              onChangeText={(txt) => setFormData({...formData, title: txt})}
-            />
-            <TextInput 
-              style={styles.input}
-              placeholder="Marka"
-              placeholderTextColor="#4b5563"
-              value={formData.brand}
-              onChangeText={(txt) => setFormData({...formData, brand: txt})}
-            />
+          <View style={styles.sect}>
+            <View style={styles.group}>
+              <Text style={styles.label}>Ürün Adı</Text>
+              <TextInput style={styles.input} value={formData.title} onChangeText={v => setFormData({...formData, title: v})} placeholder="Örn: Deri Ceket"/>
+            </View>
+            <View style={styles.group}>
+              <Text style={styles.label}>Kategori Seçimi</Text>
+              <TouchableOpacity style={styles.input} onPress={() => setShowCatModal(true)}>
+                <Text style={{color: formData.categoryId ? 'white' : '#4b5563'}}>{selectedCategoryData?.title || "Kategori Seç"}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.group}>
+              <Text style={styles.label}>Alt Kategori Seçimi</Text>
+              <TouchableOpacity style={[styles.input, !formData.categoryId && {opacity: 0.4}]} onPress={() => formData.categoryId && setShowSubCatModal(true)}>
+                <Text style={{color: formData.subCategoryId ? 'white' : '#4b5563'}}>{subCatTitle}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.group}>
+              <Text style={styles.label}>Marka</Text>
+              <TextInput style={styles.input} value={formData.brand} onChangeText={v => setFormData({...formData, brand: v})} placeholder="Marka giriniz"/>
+            </View>
           </View>
         )}
 
         {step === 2 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}><DollarSign size={18} color="#6366f1" /> Fiyat & Stok</Text>
+          <View style={styles.sect}>
             <View style={styles.row}>
-              <TextInput 
-                style={[styles.input, { flex: 1, marginRight: 10 }]}
-                placeholder="Fiyat *"
-                keyboardType="numeric"
-                placeholderTextColor="#4b5563"
-                value={formData.price}
-                onChangeText={(txt) => setFormData({...formData, price: txt})}
-              />
-              <TextInput 
-                style={[styles.input, { flex: 1 }]}
-                placeholder="Stok *"
-                keyboardType="numeric"
-                placeholderTextColor="#4b5563"
-                value={formData.stock}
-                onChangeText={(txt) => setFormData({...formData, stock: txt})}
-              />
+              <View style={[styles.group, {flex: 1, marginRight: 10}]}>
+                <Text style={styles.label}>Fiyat (₺)</Text>
+                <TextInput style={styles.input} keyboardType="numeric" value={formData.price} onChangeText={v => setFormData({...formData, price: v})} placeholder="0.00"/>
+              </View>
+              <View style={[styles.group, {flex: 1}]}>
+                <Text style={styles.label}>Stok Sayısı</Text>
+                <TextInput style={styles.input} keyboardType="numeric" value={formData.stock} onChangeText={v => setFormData({...formData, stock: v})} placeholder="0"/>
+              </View>
             </View>
-            <TextInput 
-              style={styles.input}
-              placeholder="Renk"
-              placeholderTextColor="#4b5563"
-              value={formData.color}
-              onChangeText={(txt) => setFormData({...formData, color: txt})}
-            />
+            <View style={styles.row}>
+              <View style={[styles.group, {flex: 1, marginRight: 10}]}>
+                <Text style={styles.label}>Renk</Text>
+                <TextInput style={styles.input} value={formData.color} onChangeText={v => setFormData({...formData, color: v})} placeholder="Örn: Siyah"/>
+              </View>
+              <View style={[styles.group, {flex: 1}]}>
+                <Text style={styles.label}>Desen</Text>
+                <TextInput style={styles.input} value={formData.pattern} onChangeText={v => setFormData({...formData, pattern: v})} placeholder="Örn: Düz"/>
+              </View>
+            </View>
+            <Text style={styles.label}>Bedenler</Text>
+            <View style={styles.sizeWrap}>
+              {["S", "M", "L", "XL", "38", "40", "ST"].map(s => (
+                <TouchableOpacity key={s} onPress={() => setSelectedSizes(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])} style={[styles.sizeBtn, selectedSizes.includes(s) && styles.sizeBtnAct]}>
+                  <Text style={styles.sizeTxt}>{s}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         )}
 
         {step === 3 && (
-          <View style={styles.section}>
-            <TouchableOpacity style={styles.uploadArea} onPress={pickImage}>
-              {image ? (
-                <Image source={{ uri: image }} style={styles.previewImage} />
-              ) : (
-                <>
-                  <UploadCloud color="#6366f1" size={40} />
-                  <Text style={styles.uploadText}>Görsel Seçmek İçin Dokun</Text>
-                </>
-              )}
-            </TouchableOpacity>
-            <TextInput 
-              style={[styles.input, { height: 120, textAlignVertical: 'top' }]}
-              placeholder="Ürün Açıklaması..."
-              multiline
-              placeholderTextColor="#4b5563"
-              value={formData.description}
-              onChangeText={(txt) => setFormData({...formData, description: txt})}
-            />
+          <View style={styles.sect}>
+            <Text style={styles.label}>Ürün Fotoğrafı</Text>
+            <View style={styles.imgArea}>
+              {imageUri ? <Image source={{uri: imageUri}} style={styles.fullImg}/> : <UploadCloud size={40} color="#4f46e5"/>}
+              <View style={styles.imgBar}>
+                <TouchableOpacity style={styles.iconBtn} onPress={() => pickImage(true)}><Camera size={18} color="white"/></TouchableOpacity>
+                <TouchableOpacity style={styles.iconBtn} onPress={() => pickImage(false)}><ImageIcon size={18} color="white"/></TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.group}>
+              <Text style={styles.label}>Açıklama</Text>
+              <TextInput style={[styles.input, {height: 100, textAlignVertical: 'top'}]} multiline value={formData.description} onChangeText={v => setFormData({...formData, description: v})} placeholder="Ürün detaylarını yazın..."/>
+            </View>
           </View>
         )}
+
+        <View style={styles.footer}>
+          <TouchableOpacity onPress={() => setStep(s => s - 1)} style={[styles.btnBack, step === 1 && {opacity: 0}]} disabled={step === 1}>
+            <ChevronLeft color="#9ca3af"/><Text style={{color: '#9ca3af', fontWeight: 'bold'}}>Geri</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={step === 3 ? handleFinalSubmit : () => setStep(s => s + 1)} style={styles.btnNext} disabled={isUploading}>
+            {isUploading ? <ActivityIndicator color="white"/> : <><Text style={styles.btnNextTxt}>{step === 3 ? (initialData?.id ? "GÜNCELLE" : "BİTİR") : "İLERLE"}</Text><ChevronRight color="white" size={18}/></>}
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
-      <View style={styles.footer}>
-        <TouchableOpacity 
-          style={[styles.backButton, step === 1 && { opacity: 0 }]} 
-          onPress={() => step > 1 && setStep(s => s - 1)}
-          disabled={loading}
-        >
-          <ChevronLeft color="#94a3b8" />
-          <Text style={styles.backButtonText}>GERİ</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.nextButton} 
-          onPress={step === 3 ? handleSubmit : () => setStep(s => s + 1)}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <>
-              <Text style={styles.nextButtonText}>
-                {step === 3 ? (initialData ? 'GÜNCELLE' : 'ONAYA GÖNDER') : 'İLERLE'}
-              </Text>
-              <ChevronRight color="#fff" size={20} />
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
+      <Modal visible={showCatModal} transparent animationType="slide">
+        <View style={styles.mBack}><View style={styles.mSheet}>
+            <View style={styles.mHead}><Text style={styles.mTitle}>Kategori Seç</Text><TouchableOpacity onPress={() => setShowCatModal(false)}><X color="white" /></TouchableOpacity></View>
+            <FlatList data={dbCategories} renderItem={({item}) => (
+              <TouchableOpacity style={styles.mItem} onPress={() => { setFormData({...formData, categoryId: item.id, subCategoryId: ''}); setShowCatModal(false); }}>
+                <Text style={styles.mItemTxt}>{item.title}</Text>
+              </TouchableOpacity>
+            )} />
+        </View></View>
+      </Modal>
+
+      <Modal visible={showSubCatModal} transparent animationType="slide">
+        <View style={styles.mBack}><View style={styles.mSheet}>
+            <View style={styles.mHead}><Text style={styles.mTitle}>Alt Kategori Seç</Text><TouchableOpacity onPress={() => setShowSubCatModal(false)}><X color="white" /></TouchableOpacity></View>
+            <FlatList data={activeSubCategories} renderItem={({item}) => (
+              <TouchableOpacity style={styles.mItem} onPress={() => { setFormData({...formData, subCategoryId: String(item.id)}); setShowSubCatModal(false); }}>
+                <Text style={styles.mItemTxt}>{item.title}</Text>
+              </TouchableOpacity>
+            )} />
+        </View></View>
+      </Modal>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a' },
-  stepIndicator: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 30, position: 'relative', paddingTop: 20 },
-  progressLine: { position: 'absolute', top: 42, left: '15%', right: '15%', height: 1, backgroundColor: '#1e293b' },
-  stepItem: { alignItems: 'center', zIndex: 1 },
-  iconCircle: { width: 45, height: 45, borderRadius: 16, justifyContent: 'center', alignItems: 'center', borderWidth: 2, backgroundColor: '#0f172a' },
-  activeCircle: { backgroundColor: '#4f46e5', borderColor: '#818cf8' },
-  inactiveCircle: { backgroundColor: '#0f172a', borderColor: '#1e293b' },
-  stepText: { fontSize: 10, color: '#4b5563', marginTop: 8, fontWeight: '900' },
-  activeStepText: { color: '#818cf8' },
-  formContent: { flex: 1 },
-  section: { gap: 15 },
-  sectionTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 10, flexDirection: 'row', alignItems: 'center' },
-  input: { backgroundColor: '#020617', borderWidth: 1, borderColor: '#1e293b', padding: 16, borderRadius: 18, color: '#fff' },
+  container: { flex: 1, backgroundColor: '#0f172a', paddingHorizontal: 20 },
+  stepIndicator: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 20 },
+  stepWrap: { alignItems: 'center' },
+  circle: { width: 34, height: 34, borderRadius: 10, backgroundColor: '#1e293b', alignItems: 'center', justifyContent: 'center' },
+  circleAct: { backgroundColor: '#4f46e5' },
+  stepTxt: { color: '#64748b', fontSize: 10, marginTop: 4, fontWeight: 'bold' },
+  line: { width: 40, height: 2, backgroundColor: '#1e293b', marginHorizontal: 10, marginTop: -15 },
+  sect: { gap: 16 },
+  group: { gap: 6 },
+  label: { color: '#9ca3af', fontSize: 12, fontWeight: 'bold', marginLeft: 4 },
+  input: { backgroundColor: '#020617', borderRadius: 12, padding: 14, color: 'white', borderWidth: 1, borderColor: '#1e293b' },
   row: { flexDirection: 'row' },
-  uploadArea: { borderStyle: 'dashed', borderWidth: 2, borderColor: '#1e293b', borderRadius: 30, padding: 20, alignItems: 'center', backgroundColor: '#020617', marginBottom: 20, height: 200, justifyContent: 'center', overflow: 'hidden' },
-  uploadText: { color: '#94a3b8', marginTop: 10, fontSize: 12 },
-  previewImage: { width: '100%', height: '100%', borderRadius: 20 },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 20, borderTopWidth: 1, borderTopColor: '#1e293b', alignItems: 'center' },
-  nextButton: { backgroundColor: '#4f46e5', padding: 18, borderRadius: 20, flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'center', marginLeft: 10 },
-  nextButtonText: { color: '#fff', fontWeight: '900', marginRight: 10 },
-  backButton: { flexDirection: 'row', alignItems: 'center', padding: 18, flex: 0.4 },
-  backButtonText: { color: '#94a3b8', fontWeight: '900', marginLeft: 5 }
+  sizeWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  sizeBtn: { padding: 10, borderRadius: 10, backgroundColor: '#1e293b', minWidth: 45, alignItems: 'center' },
+  sizeBtnAct: { backgroundColor: '#4f46e5' },
+  sizeTxt: { color: 'white', fontWeight: 'bold', fontSize: 12 },
+  imgArea: { height: 180, backgroundColor: '#020617', borderRadius: 20, borderWidth: 1, borderStyle: 'dashed', borderColor: '#334155', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  fullImg: { width: '100%', height: '100%' },
+  imgBar: { flexDirection: 'row', position: 'absolute', bottom: 10, gap: 10 },
+  iconBtn: { backgroundColor: '#4f46e5', padding: 8, borderRadius: 8 },
+  footer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 30, alignItems: 'center', paddingBottom: 20 },
+  btnBack: { flexDirection: 'row', alignItems: 'center' },
+  btnNext: { backgroundColor: '#4f46e5', paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  btnNextTxt: { color: 'white', fontWeight: 'bold' },
+  mBack: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
+  mSheet: { backgroundColor: '#1e293b', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 20, maxHeight: '60%' },
+  mHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
+  mTitle: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  mItem: { paddingVertical: 15, borderBottomWidth: 0.5, borderBottomColor: '#334155' },
+  mItemTxt: { color: 'white' }
 });
