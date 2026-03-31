@@ -55,6 +55,12 @@ export default function HomeScreen() {
       <TouchableOpacity style={{backgroundColor: 'red', margin: 20,}} onPress={() => router.push("/admin/messages")}>
         <Text>Admin gelen Kutusu</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={{backgroundColor: 'red', margin: 20,}} onPress={() => router.push("/seller/orders")}>
+        <Text>Satıcı Siparişler</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={{backgroundColor: 'red', margin: 20,}} onPress={() => router.push("/seller/questions")}>
+        <Text>Satıcı Sorular</Text>
+      </TouchableOpacity>
 
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
