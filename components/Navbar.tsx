@@ -2,10 +2,13 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native";
 import { Info, ShoppingCart, User, Search } from "lucide-react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { usePathname, useRouter } from "expo-router";
 
 const Navbar = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
+ const pathname = usePathname();
+ const router = useRouter();
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -19,8 +22,8 @@ const Navbar = () => {
             <Search size={22} color="#FFF" strokeWidth={2} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("About")}>
-            <Info size={22} color={route.name === "About" ? "#3b82f6" : "#94a3b8"} strokeWidth={2} />
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/about")}>
+            <Info size={22} color={pathname === "/about" ? "#3b82f6" : "#94a3b8"} strokeWidth={2} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("Cart")}>
@@ -32,7 +35,7 @@ const Navbar = () => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate("Profile")}>
+          <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate("(auth)/login")}>
             <User size={18} color="#FFF" strokeWidth={2.5} />
           </TouchableOpacity>
         </View>

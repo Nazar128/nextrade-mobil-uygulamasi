@@ -8,15 +8,21 @@ import BestSellers from "@/components/BestSellers";
 import Footer from "@/components/Footer";
 import { Text } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { CategoryBar } from "@/components/CategoryBar";
+import CategorySection from "@/components/CategorySection";
 
 export default function HomeScreen() {
   const router = useRouter();
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <CategoryBar />
       <HeroSection />
 
       <View style={styles.content}>
+        
+        
         <FeaturedProducts />
+        <CategorySection />
         <PopularProducts />
         <BestSellers />
         <Footer />
