@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { 
   View, 
@@ -13,13 +14,13 @@ import { ShoppingCart, Star, Heart, ArrowRight, CheckCircle2 } from "lucide-reac
 import { db, auth } from "@/api/firebase";
 import { doc, setDoc, deleteDoc, onSnapshot, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "@firebase/auth";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width / 2 - 24;
 
 const ProductCard = ({ product }: { product: any }) => {
-  const navigation = useNavigation<any>();
+  const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showToast, setShowToast] = useState(false);
@@ -125,19 +126,28 @@ const ProductCard = ({ product }: { product: any }) => {
             <CheckCircle2 size={16} color="#FFF" />
             <Text style={styles.toastText}>Sepete Eklendi</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+          <TouchableOpacity onPress={() => router.push("/shoppingCart")}>
             <ArrowRight size={16} color="#FFF" />
           </TouchableOpacity>
         </Animated.View>
       )}
 
-   
+      {/* Kartın Tıklanabilir Alanı */}
+      <TouchableOpacity 
+        activeOpacity={0.9} 
+        onPress={() => router.push(`/product/${product.id}`)}
+      >
         <View style={styles.imageContainer}>
           <Image 
             source={{ uri: product.imageUrl || product.image || "https://via.placeholder.com/150" }} 
             style={styles.image}
           />
-          <TouchableOpacity style={styles.favButton} onPress={toggleFavorite}>
+          {/* Favori butonu kartın içinde ama bağımsız tıklanabilir */}
+          <TouchableOpacity 
+            style={styles.favButton} 
+            onPress={toggleFavorite}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
             <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
               <Heart 
                 size={20} 
@@ -158,7 +168,7 @@ const ProductCard = ({ product }: { product: any }) => {
           </View>
           <Text style={styles.title} numberOfLines={2}>{product.title}</Text>
         </View>
-      
+      </TouchableOpacity>
 
       <View style={styles.footer}>
         <Text style={styles.price}>₺{Number(product.price).toLocaleString('tr-TR')}</Text>
@@ -174,7 +184,7 @@ const styles = StyleSheet.create({
     container: { width: CARD_WIDTH, backgroundColor: "rgba(255, 255, 255, 0.05)", borderRadius: 24, padding: 12, margin: 8, borderWidth: 1, borderColor: "rgba(255, 255, 255, 0.1)", ...Platform.select({ ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8 }, android: { elevation: 4 } }) },
     imageContainer: { height: 160, borderRadius: 20, overflow: "hidden", marginBottom: 10, backgroundColor: "#0f172a" },
     image: { width: "100%", height: "100%", resizeMode: "cover" },
-    favButton: { position: "absolute", top: 10, right: 10, backgroundColor: "rgba(15, 23, 42, 0.6)", padding: 8, borderRadius: 12 },
+    favButton: { position: "absolute", top: 10, right: 10, backgroundColor: "rgba(15, 23, 42, 0.6)", padding: 8, borderRadius: 12, zIndex: 10 },
     infoContainer: { paddingHorizontal: 4 },
     brandRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
     brandText: { fontSize: 10, color: "#3b82f6", fontWeight: "900", letterSpacing: 1 },
@@ -187,6 +197,6 @@ const styles = StyleSheet.create({
     toast: { position: "absolute", top: 0, left: 10, right: 10, zIndex: 100, backgroundColor: "#3b82f6", flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 12, borderRadius: 16 },
     toastContent: { flexDirection: "row", alignItems: "center", gap: 8 },
     toastText: { color: "#FFF", fontSize: 12, fontWeight: "bold" }
-  });
+});
 
 export default ProductCard;
