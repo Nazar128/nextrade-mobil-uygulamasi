@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Star, ShoppingCart, Check, ArrowRight } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -16,9 +17,26 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
 
   if (!product) return null;
 
-  const addToCart = () => {
-    setAdded(true);
-    setTimeout(() => setAdded(false), 3000);
+  const addToCart = async () => {
+    try {
+      const existingCart = await AsyncStorage.getItem('cart');
+      let cart = existingCart ? JSON.parse(existingCart) : [];
+
+      const existingIndex = cart.findIndex((item: any) => item.id === product.id);
+
+      if (existingIndex !== -1) {
+        cart[existingIndex].quantity += 1;
+      } else {
+        cart.push({ ...product, quantity: 1 });
+      }
+
+      await AsyncStorage.setItem('cart', JSON.stringify(cart));
+
+      setAdded(true);
+      setTimeout(() => setAdded(false), 3000);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

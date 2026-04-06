@@ -26,7 +26,7 @@ const Navbar = () => {
             <Info size={22} color={pathname === "/about" ? "#3b82f6" : "#94a3b8"} strokeWidth={2} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("Cart")}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.push("/shoppingCart")}>
             <View>
               <ShoppingCart size={22} color={route.name === "Cart" ? "#3b82f6" : "#94a3b8"} strokeWidth={2} />
               <View style={styles.badge}>
