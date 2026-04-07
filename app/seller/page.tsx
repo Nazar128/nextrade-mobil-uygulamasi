@@ -12,6 +12,7 @@ export default function page() {
       <TouchableOpacity style={{backgroundColor: 'red', margin: 20,}} onPress={() => router.push("/seller/products")}>
         <Text>Ürünlerim</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/seller/orders")}><Text>Siparişler</Text></TouchableOpacity>
     </View>
   )
 }

@@ -15,12 +15,10 @@ export default function HomeScreen() {
   const router = useRouter();
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <TouchableOpacity onPress={()=> router.push("/profile/page")}><Text>Profilim</Text></TouchableOpacity>
       <CategoryBar />
       <HeroSection />
-
       <View style={styles.content}>
-        
-        
         <FeaturedProducts />
         <CategorySection />
         <PopularProducts />

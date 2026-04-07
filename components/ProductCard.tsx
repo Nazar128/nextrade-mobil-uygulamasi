@@ -132,7 +132,6 @@ const ProductCard = ({ product }: { product: any }) => {
         </Animated.View>
       )}
 
-      {/* Kartın Tıklanabilir Alanı */}
       <TouchableOpacity 
         activeOpacity={0.9} 
         onPress={() => router.push(`/product/${product.id}`)}
@@ -142,7 +141,6 @@ const ProductCard = ({ product }: { product: any }) => {
             source={{ uri: product.imageUrl || product.image || "https://via.placeholder.com/150" }} 
             style={styles.image}
           />
-          {/* Favori butonu kartın içinde ama bağımsız tıklanabilir */}
           <TouchableOpacity 
             style={styles.favButton} 
             onPress={toggleFavorite}
