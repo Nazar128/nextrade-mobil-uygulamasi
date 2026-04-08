@@ -6,6 +6,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider, updateProfile } from "firebase/auth";
 import { Camera, ShieldCheck, Mail, Phone, Lock, User as UserIcon, Zap, Loader2, KeyRound } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
@@ -23,7 +24,7 @@ export default function MobileDashboardPage() {
     profileImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=300"
   });
   const [security, setSecurity] = useState({ currentPassword: "", newPassword: "" });
-
+  const router = useRouter();
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -160,6 +161,9 @@ export default function MobileDashboardPage() {
                 {isSaving ? <ActivityIndicator color="#000" /> : <Text style={styles.submitBtnText}>GÜNCELLEMEYİ TAMAMLA</Text>}
               </TouchableOpacity>
             </View>
+            <TouchableOpacity onPress={() => {router.push("/profile/addresses")}}><Text>Adreslerim</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => {router.push("/profile/orders")}}><Text>SiparişLerim</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => {router.push("/profile/wishlist")}}><Text>FAVORİLERİM</Text></TouchableOpacity>
           </View>
         )}
       </ScrollView>
