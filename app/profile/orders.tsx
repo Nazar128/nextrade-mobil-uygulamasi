@@ -1,17 +1,22 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { StyleSheet,  Text,  View, TouchableOpacity,  ScrollView,  Modal,  TextInput,  ActivityIndicator, Image,  Dimensions, SafeAreaView} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, TextInput, ActivityIndicator, Image, Dimensions, SafeAreaView, Alert } from 'react-native';
 import { db, auth } from "@/api/firebase";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy, doc, deleteDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { Package, ChevronRight, Clock, CheckCircle2, Truck,  Box, Search, X, CreditCard, MapPin } from 'lucide-react-native';
-const { width } = Dimensions.get('window');
+import { Package, ChevronRight, Clock, CheckCircle2, Truck, Box, Search, X, CreditCard, MapPin, RefreshCcw, Trash2 } from 'lucide-react-native';
+import ReturnManagement from "@/components/ReturnManagement";
+
+const { height } = Dimensions.get('window');
 
 export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<any[]>([]);
+  const [returns, setReturns] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showReturnModal, setShowReturnModal] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -27,38 +32,78 @@ export default function OrdersPage() {
           setLoading(false);
         });
 
-        return () => unsubscribeOrders();
+        const qReturns = query(
+          collection(db, "returns"),
+          where("customerId", "==", user.uid)
+        );
+
+        const unsubscribeReturns = onSnapshot(qReturns, (snapshot) => {
+          setReturns(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+
+        return () => {
+          unsubscribeOrders();
+          unsubscribeReturns();
+        };
       } else {
         setLoading(false);
       }
     });
     return () => unsubscribeAuth();
   }, []);
+
+  const handleCancelReturn = async (orderId: string) => {
+    Alert.alert(
+      "İptal Onayı",
+      "İade talebini iptal etmek istediğinize emin misiniz?",
+      [
+        { text: "Vazgeç", style: "cancel" },
+        {
+          text: "Evet, İptal Et",
+          style: "destructive",
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              const returnDoc = returns.find(r => r.orderId === orderId);
+              if (returnDoc) {
+                await deleteDoc(doc(db, "returns", returnDoc.id));
+                setSelectedOrder(null);
+              }
+            } catch (error) {
+              console.error(error);
+            } finally {
+              setIsDeleting(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const getStatusConfig = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'shipped':
-        return { label: "Kargoda", color: "#22d3ee", icon: <Truck size={18} color="#22d3ee" /> };
-      case 'delivered':
-        return { label: "Teslim Edildi", color: "#4ade80", icon: <CheckCircle2 size={18} color="#4ade80" /> };
+      case 'shipped': return { label: "Kargoda", color: "#22d3ee", icon: <Truck size={18} color="#22d3ee" /> };
+      case 'delivered': return { label: "Teslim Edildi", color: "#4ade80", icon: <CheckCircle2 size={18} color="#4ade80" /> };
       case 'pending':
-      default:
-        return { label: "Hazırlanıyor", color: "#fbbf24", icon: <Clock size={18} color="#fbbf24" /> };
+      default: return { label: "Hazırlanıyor", color: "#fbbf24", icon: <Clock size={18} color="#fbbf24" /> };
     }
   };
-  const filteredOrders = orders.filter(o => 
-    o.orderId?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
+  const filteredOrders = orders.filter(o => o.orderId?.toString().toLowerCase().includes(searchTerm.toLowerCase()));
+
   const formatDate = (date: any) => {
     if (!date) return "Tarih Belirsiz";
     const d = date?.seconds ? new Date(date.seconds * 1000) : new Date(date);
     return d.toLocaleDateString('tr-TR');
   };
+
   if (loading) return (
     <View style={styles.loaderContainer}>
       <ActivityIndicator size="large" color="#06b6d4" />
       <Text style={styles.loaderText}>YÜKLENİYOR</Text>
     </View>
   );
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -69,99 +114,75 @@ export default function OrdersPage() {
 
         <View style={styles.searchContainer}>
           <Search size={20} color="#64748b" style={styles.searchIcon} />
-          <TextInput
-            placeholder="Sipariş ID ile ara..."
-            placeholderTextColor="#64748b"
-            value={searchTerm}
-            onChangeText={setSearchTerm}
-            style={styles.searchInput}
-          />
+          <TextInput placeholder="Sipariş ID ile ara..." placeholderTextColor="#64748b" value={searchTerm} onChangeText={setSearchTerm} style={styles.searchInput} />
         </View>
+
         {filteredOrders.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>SİPARİŞ BULUNAMADI</Text>
-          </View>
+          <View style={styles.emptyContainer}><Text style={styles.emptyText}>SİPARİŞ BULUNAMADI</Text></View>
         ) : (
           filteredOrders.map((order) => {
             const config = getStatusConfig(order.status);
             return (
-              <TouchableOpacity 
-                key={order.id} 
-                style={styles.orderCard}
-                onPress={() => setSelectedOrder(order)}
-                activeOpacity={0.8}
-              >
+              <TouchableOpacity key={order.id} style={styles.orderCard} onPress={() => setSelectedOrder(order)} activeOpacity={0.8}>
                 <View style={styles.cardTop}>
-                  <View style={[styles.iconBox, { borderColor: config.color + '33' }]}>
-                    <Box size={24} color={config.color} />
-                  </View>
+                  <View style={[styles.iconBox, { borderColor: config.color + '33' }]}><Box size={24} color={config.color} /></View>
                   <View style={styles.cardInfo}>
                     <View style={styles.orderIdRow}>
                       <Text style={styles.orderId}>#{order.orderId}</Text>
-                      <View style={[styles.statusBadge, { borderColor: config.color + '33' }]}>
-                        <Text style={[styles.statusText, { color: config.color }]}>{config.label}</Text>
-                      </View>
+                      <View style={[styles.statusBadge, { borderColor: config.color + '33' }]}><Text style={[styles.statusText, { color: config.color }]}>{config.label}</Text></View>
                     </View>
                     <Text style={styles.dateText}>{formatDate(order.createdAt)}</Text>
                   </View>
                   <ChevronRight size={20} color="#475569" />
                 </View>
                 <View style={styles.cardBottom}>
-                  <View>
-                    <Text style={styles.statLabel}>İÇERİK</Text>
-                    <Text style={styles.statValue}>{order.items?.length || 0} Ürün</Text>
-                  </View>
-                  <View>
-                    <Text style={styles.statLabel}>TOPLAM</Text>
-                    <Text style={styles.statValue}>{order.totalAmount?.toLocaleString('tr-TR')} TL</Text>
-                  </View>
+                  <View><Text style={styles.statLabel}>İÇERİK</Text><Text style={styles.statValue}>{order.items?.length || 0} Ürün</Text></View>
+                  <View><Text style={styles.statLabel}>TOPLAM</Text><Text style={styles.statValue}>{order.totalAmount?.toLocaleString('tr-TR')} TL</Text></View>
                 </View>
               </TouchableOpacity>
             );
           })
         )}
       </ScrollView>
+
       <Modal visible={!!selectedOrder} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitle}>SİPARİŞ ÖZETİ</Text>
-                <Text style={styles.modalOrderId}>#{selectedOrder?.orderId}</Text>
-              </View>
-              <TouchableOpacity onPress={() => setSelectedOrder(null)} style={styles.closeBtn}>
-                <X size={24} color="#64748b" />
-              </TouchableOpacity>
+              <View><Text style={styles.modalTitle}>SİPARİŞ ÖZETİ</Text><Text style={styles.modalOrderId}>#{selectedOrder?.orderId}</Text></View>
+              <TouchableOpacity onPress={() => setSelectedOrder(null)} style={styles.closeBtn}><X size={24} color="#64748b" /></TouchableOpacity>
             </View>
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
               <View style={styles.detailCard}>
-                <View style={styles.detailHeader}>
-                  <MapPin size={18} color="#06b6d4" />
-                  <Text style={styles.detailHeaderText}>TESLİMAT BİLGİSİ</Text>
-                </View>
+                <View style={styles.detailHeader}><MapPin size={18} color="#06b6d4" /><Text style={styles.detailHeaderText}>TESLİMAT BİLGİSİ</Text></View>
                 <Text style={styles.addressName}>{selectedOrder?.address?.fullName}</Text>
                 <Text style={styles.addressText}>{selectedOrder?.address?.address}</Text>
                 <Text style={styles.addressText}>{selectedOrder?.address?.district} / {selectedOrder?.address?.city}</Text>
                 <Text style={styles.phoneText}>{selectedOrder?.address?.phone}</Text>
               </View>
+
               <View style={styles.detailCard}>
-                <View style={styles.detailHeader}>
-                  <CreditCard size={18} color="#a855f7" />
-                  <Text style={styles.detailHeaderText}>ÖDEME DETAYI</Text>
-                </View>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentLabel}>Yöntem</Text>
-                  <Text style={styles.paymentValue}>{selectedOrder?.payment?.method}</Text>
-                </View>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentLabel}>Toplam</Text>
-                  <Text style={styles.totalValue}>{selectedOrder?.totalAmount?.toLocaleString('tr-TR')} TL</Text>
-                </View>
+                <View style={styles.detailHeader}><CreditCard size={18} color="#a855f7" /><Text style={styles.detailHeaderText}>ÖDEME DETAYI</Text></View>
+                <View style={styles.paymentRow}><Text style={styles.paymentLabel}>Yöntem</Text><Text style={styles.paymentValue}>{selectedOrder?.payment?.method}</Text></View>
+                <View style={styles.paymentRow}><Text style={styles.paymentLabel}>Toplam</Text><Text style={styles.totalValue}>{selectedOrder?.totalAmount?.toLocaleString('tr-TR')} TL</Text></View>
               </View>
+
               <View style={styles.productsSection}>
-                <View style={styles.detailHeader}>
-                  <Package size={18} color="#f59e0b" />
-                  <Text style={styles.detailHeaderText}>ÜRÜNLER</Text>
+                <View style={styles.productsHeaderRow}>
+                  <View style={styles.detailHeader}><Package size={18} color="#f59e0b" /><Text style={styles.detailHeaderText}>ÜRÜNLER</Text></View>
+                  {selectedOrder?.status === 'delivered' && (
+                    returns.some(r => r.orderId === selectedOrder.id) ? (
+                      <TouchableOpacity onPress={() => handleCancelReturn(selectedOrder.id)} disabled={isDeleting} style={styles.cancelReturnBtn}>
+                        {isDeleting ? <ActivityIndicator size="small" color="#ef4444" /> : <Trash2 size={14} color="#ef4444" />}
+                        <Text style={styles.cancelReturnText}>İADEYİ İPTAL ET</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity onPress={() => setShowReturnModal(selectedOrder)} style={styles.createReturnBtn}>
+                        <RefreshCcw size={14} color="#fff" />
+                        <Text style={styles.createReturnText}>İADE TALEBİ</Text>
+                      </TouchableOpacity>
+                    )
+                  )}
                 </View>
                 {selectedOrder?.items?.map((item: any, idx: number) => (
                   <View key={idx} style={styles.productItem}>
@@ -176,15 +197,22 @@ export default function OrdersPage() {
                 ))}
               </View>
             </ScrollView>
-            <TouchableOpacity style={styles.closeAction} onPress={() => setSelectedOrder(null)}>
-              <Text style={styles.closeActionText}>KAPAT</Text>
-            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeAction} onPress={() => setSelectedOrder(null)}><Text style={styles.closeActionText}>KAPAT</Text></TouchableOpacity>
           </View>
         </View>
       </Modal>
+
+      {showReturnModal && (
+        <ReturnManagement 
+          visible={!!showReturnModal}
+          order={showReturnModal} 
+          onClose={() => { setShowReturnModal(null); setSelectedOrder(null); }} 
+        />
+      )}
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   scrollContent: { padding: 20 },
@@ -228,6 +256,11 @@ const styles = StyleSheet.create({
   paymentValue: { color: '#fff', fontSize: 13, fontWeight: '700' },
   totalValue: { color: '#fff', fontSize: 16, fontWeight: '900' },
   productsSection: { marginBottom: 30 },
+  productsHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+  createReturnBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#06b6d4', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12 },
+  createReturnText: { color: '#fff', fontSize: 9, fontWeight: '900' },
+  cancelReturnBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.2)' },
+  cancelReturnText: { color: '#ef4444', fontSize: 9, fontWeight: '900' },
   productItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#16191d', padding: 12, borderRadius: 20, marginBottom: 10, borderWidth: 1, borderColor: '#1e293b' },
   productImg: { width: 60, height: 60, borderRadius: 12, marginRight: 15 },
   productInfo: { flex: 1 },

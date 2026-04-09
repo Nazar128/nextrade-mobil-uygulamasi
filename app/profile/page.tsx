@@ -164,6 +164,9 @@ export default function MobileDashboardPage() {
             <TouchableOpacity onPress={() => {router.push("/profile/addresses")}}><Text>Adreslerim</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => {router.push("/profile/orders")}}><Text>SiparişLerim</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => {router.push("/profile/wishlist")}}><Text>FAVORİLERİM</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => {router.push("/profile/followedStores")}}><Text>Takip Ettiklerim</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => {router.push("/contact")}}><Text>İletişim</Text></TouchableOpacity>
+            
           </View>
         )}
       </ScrollView>
