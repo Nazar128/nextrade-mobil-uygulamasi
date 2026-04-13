@@ -7,13 +7,11 @@ import {
 import { Star, Camera, ChevronRight, AlertCircle, CheckCircle2, X, ArrowUpDown } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { db, auth, storage } from "@/api/firebase";
-import { 
-  collection, query, where, getDocs, addDoc, 
-  serverTimestamp, onSnapshot, doc, getDoc
-} from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, serverTimestamp, onSnapshot, doc, getDoc} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { sendNotification } from "@/lib/notifications";
 
-const CommentSection = ({ productId }: { productId: string, product: any }) => {
+const CommentSection = ({ productId, product }: { productId: string, product: any }) => {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
   const [userRating, setUserRating] = useState(0);
   const [newComment, setNewComment] = useState("");
@@ -122,6 +120,15 @@ const CommentSection = ({ productId }: { productId: string, product: any }) => {
         date: new Date().toLocaleDateString('tr-TR'),
         createdAt: serverTimestamp(),
       });
+
+      if (product?.sellerId) {
+        await sendNotification(
+          String(product.sellerId),
+          'review',
+          'YENİ YORUM',
+          `"${newComment.trim()}"`
+        );
+      }
 
       setNewComment("");
       setUserRating(0);

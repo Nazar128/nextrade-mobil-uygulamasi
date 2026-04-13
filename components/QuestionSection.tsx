@@ -4,6 +4,7 @@ import { Send, MessageCircle, Clock, ArrowUpDown } from 'lucide-react-native';
 import { db, auth } from "@/api/firebase";
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { sendNotification } from "@/lib/notifications";
 
 const QuestionSection = ({ product }: { product: any }) => {
     const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
@@ -46,6 +47,14 @@ const QuestionSection = ({ product }: { product: any }) => {
                 answer: null,
                 createdAt: serverTimestamp(),
             });
+
+            await sendNotification(
+                String(product.sellerId),
+                'question',
+                'YENİ SORU',
+                `"${newQuestion.trim()}"`
+            );
+            
             setNewQuestion('');
             Alert.alert("Başarılı", "Sorunuz iletildi.");
         } catch (error) {

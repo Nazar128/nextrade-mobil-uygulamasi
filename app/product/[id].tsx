@@ -1,7 +1,7 @@
 "use client";
 import ProductDetail from '@/components/ProductDetail';
-import { HelpCircle, MessageSquareText, ShieldCheck } from 'lucide-react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { HelpCircle, MessageSquareText, ShieldCheck, Store, ChevronRight } from 'lucide-react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { db, auth } from "@/api/firebase";
 import { collection, query, where, getDocs, setDoc, getDoc, doc, updateDoc, increment } from "firebase/firestore";
@@ -11,6 +11,7 @@ import QuestionSection from '@/components/QuestionSection';
 
 const Page = () => {
     const params = useLocalSearchParams();
+    const router = useRouter();
     const selectedId = params.id;
     
     const [activeTab, setActiveTab] = useState('sartlar');
@@ -92,6 +93,29 @@ const Page = () => {
     const renderHeader = () => (
         <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
             <ProductDetail product={product} />
+
+            <TouchableOpacity 
+                onPress={() => router.push("/store/[id]")}
+                style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: '#1e293b',
+                    padding: 16,
+                    borderRadius: 16,
+                    marginTop: 20,
+                    borderWidth: 1,
+                    borderColor: '#334155'
+                }}
+            >
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#3b82f622', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                    <Store size={20} color="#3b82f6" />
+                </View>
+                <View style={{ flex: 1 }}>
+                    <Text style={{ color: '#94a3b8', fontSize: 12 }}>Satıcı</Text>
+                    <Text style={{ color: '#fff', fontSize: 15, fontWeight: 'bold' }}>{product.sellerName || 'Mağazayı Gör'}</Text>
+                </View>
+                <ChevronRight size={20} color="#64748b" />
+            </TouchableOpacity>
             
             <View style={{ marginTop: 24 }}>
                 <View style={{ flexDirection: 'row', backgroundColor: '#0f172a', borderRadius: 12, padding: 4, marginBottom: 16 }}>

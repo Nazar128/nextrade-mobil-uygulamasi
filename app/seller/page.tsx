@@ -13,6 +13,8 @@ export default function page() {
         <Text>Ürünlerim</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => router.push("/seller/orders")}><Text>Siparişler</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/seller/dashboard")}><Text>Dashboard</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/seller/questions")}><Text>Sorular</Text></TouchableOpacity>
     </View>
   )
 }

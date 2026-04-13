@@ -63,10 +63,10 @@ export default function UsersScreen() {
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsScroll} contentContainerStyle={{ paddingRight: 20 }}>
-          <StatCard label="Toplam" value={stats.total} icon={Users} color="#6366f1" subtitle="Tüm Kayıtlar" />
-          <StatCard label="Satıcı" value={stats.sellers} icon={ShieldCheck} color="#10b981" subtitle="Mağazalar" />
-          <StatCard label="Kısıtlı" value={stats.restricted} icon={UserMinus} color="#f43f5e" subtitle="Erişimsiz" />
-          <StatCard label="Müşteri" value={stats.customers} icon={UserCheck} color="#3b82f6" subtitle="Üyeler" />
+          <StatCard label="Toplam" value={stats.total} icon={<Users/>} color="#6366f1" subtitle="Tüm Kayıtlar" />
+          <StatCard label="Satıcı" value={stats.sellers} icon={<ShieldCheck/>} color="#10b981" subtitle="Mağazalar" />
+          <StatCard label="Kısıtlı" value={stats.restricted} icon={<UserMinus/>} color="#f43f5e" subtitle="Erişimsiz" />
+          <StatCard label="Müşteri" value={stats.customers} icon={<UserCheck/>} color="#3b82f6" subtitle="Üyeler" />
         </ScrollView>
 
         <View style={styles.listSection}>

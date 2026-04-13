@@ -7,6 +7,7 @@ import { onAuthStateChanged, updatePassword, reauthenticateWithCredential, Email
 import { Camera, ShieldCheck, Mail, Phone, Lock, User as UserIcon, Zap, Loader2, KeyRound } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
+import CustomerStats from '@/components/CustomerStats';
 
 const { width } = Dimensions.get('window');
 
@@ -14,6 +15,7 @@ export default function MobileDashboardPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [uid, setUid] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [userData, setUserData] = useState({
     displayName: "",
@@ -44,6 +46,7 @@ export default function MobileDashboardPage() {
             createdAt: dateString,
             profileImage: data.profileImage || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=300"
           });
+          setUid(user.uid)
         }
       }
       setLoading(false);
@@ -171,6 +174,7 @@ export default function MobileDashboardPage() {
             
           </View>
         )}
+        {uid && <CustomerStats userId={uid}/>}
       </ScrollView>
     </KeyboardAvoidingView>
   );
