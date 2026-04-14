@@ -169,7 +169,7 @@ export default function MobileDashboardPage() {
             <TouchableOpacity onPress={() => {router.push("/profile/wishlist")}}><Text>FAVORİLERİM</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => {router.push("/profile/followedStores")}}><Text>Takip Ettiklerim</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => {router.push("/contact")}}><Text>İletişim</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => {router.push("/admin/cms")}}><Text>CMS</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => {router.push("/profile/settings")}}><Text>Ayarlar</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => {router.push("/support")}}><Text>Destek</Text></TouchableOpacity>
             
           </View>

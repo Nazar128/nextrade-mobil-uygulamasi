@@ -1,28 +1,26 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useTheme } from "@/context/ThemeContext";
 import Toast from "react-native-toast-message";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
 
   return (
-    <View style={styles.mainWrapper}>
+    <View style={[styles.mainWrapper, { backgroundColor: theme.bg }]}>
       <Navbar />
 
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+          tabBarActiveTintColor: theme.primary,
           tabBarInactiveTintColor: "#94a3b8",
           headerShown: false,
           tabBarButton: HapticTab,
-          tabBarStyle: styles.tabBar,
+          tabBarStyle: [styles.tabBar, { backgroundColor: theme.card, borderTopColor: theme.border }],
         }}
       >
         <Tabs.Screen
@@ -47,11 +45,9 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  mainWrapper: { flex: 1, backgroundColor: "#0f172a" },
+  mainWrapper: { flex: 1 },
   tabBar: { 
-    backgroundColor: "#1e293b", 
     borderTopWidth: 1, 
-    borderTopColor: "rgba(255,255,255,0.1)", 
     height: 60, 
     paddingBottom: 8 
   }
