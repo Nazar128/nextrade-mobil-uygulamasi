@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowUpRight } from 'lucide-react-native';
-
+import { Image } from 'expo-image';
 const { width } = Dimensions.get('window');
 
 const images: { [key: string]: any } = {
@@ -63,7 +63,8 @@ const CategorySection = () => {
               <Image 
                 source={images[category.imgKey]} 
                 style={styles.cardImage} 
-                resizeMode="contain" 
+                resizeMode="contain"
+                contentFit="cover" transition={500}  cachePolicy="disk" 
               />
             </View>
 

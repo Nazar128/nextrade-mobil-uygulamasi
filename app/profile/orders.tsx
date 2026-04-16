@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, TextInput, ActivityIndicator, Image, Dimensions, SafeAreaView, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, TextInput, ActivityIndicator,  Dimensions, SafeAreaView, Alert } from 'react-native';
 import { db, auth } from "@/api/firebase";
 import { collection, query, where, onSnapshot, orderBy, doc, deleteDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Package, ChevronRight, Clock, CheckCircle2, Truck, Box, Search, X, CreditCard, MapPin, RefreshCcw, Trash2 } from 'lucide-react-native';
 import ReturnManagement from "@/components/ReturnManagement";
-
+import { Image } from 'expo-image';
 const { height } = Dimensions.get('window');
 
 export default function OrdersPage() {
@@ -186,7 +186,7 @@ export default function OrdersPage() {
                 </View>
                 {selectedOrder?.items?.map((item: any, idx: number) => (
                   <View key={idx} style={styles.productItem}>
-                    <Image source={{ uri: item.imageUrl || item.image }} style={styles.productImg} />
+                    <Image source={{ uri: item.imageUrl || item.image }} style={styles.productImg} contentFit="cover" transition={500}  cachePolicy="disk"  />
                     <View style={styles.productInfo}>
                       <Text style={styles.productBrand}>{item.brand}</Text>
                       <Text style={styles.productTitle} numberOfLines={1}>{item.title}</Text>

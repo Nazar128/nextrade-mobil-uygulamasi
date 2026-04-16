@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Dimensions } from "react-native";
+import { View, Text, StyleSheet,  ActivityIndicator, Dimensions } from "react-native";
 import { TrendingUp } from "lucide-react-native";
 import { db } from "@/api/firebase";
 import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import ProductCard from "./ProductCard";
-
+import { FlashList } from "@shopify/flash-list";
 const { width } = Dimensions.get("window");
 
 const BestSellers = () => {
@@ -51,12 +51,11 @@ const BestSellers = () => {
         </Text>
       </View>
 
-      <FlatList
+      <FlashList
         data={products}
         keyExtractor={(item) => item.id}
         numColumns={2}
         scrollEnabled={false}
-        columnWrapperStyle={styles.row}
         renderItem={({ item }) => <ProductCard product={item} />}
         contentContainerStyle={styles.listContainer}
       />

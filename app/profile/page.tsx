@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import { db, auth, storage } from "@/api/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -8,7 +8,7 @@ import { Camera, ShieldCheck, Mail, Phone, Lock, User as UserIcon, Zap, Loader2,
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import CustomerStats from '@/components/CustomerStats';
-
+import { Image } from 'expo-image';
 const { width } = Dimensions.get('window');
 
 export default function MobileDashboardPage() {
@@ -127,7 +127,7 @@ export default function MobileDashboardPage() {
               <TouchableOpacity onPress={handlePickImage} activeOpacity={0.8}>
                 <View style={styles.avatarGradient}>
                   <View style={styles.avatarInner}>
-                    {uploadingImage ? <ActivityIndicator color="#fff" /> : <Image source={{ uri: userData.profileImage }} style={styles.avatarImg} />}
+                    {uploadingImage ? <ActivityIndicator color="#fff" /> : <Image source={{ uri: userData.profileImage }} style={styles.avatarImg} contentFit="cover" transition={500}  cachePolicy="disk"  />}
                     <View style={styles.cameraIcon}><Camera size={14} color="#fff" /></View>
                   </View>
                 </View>

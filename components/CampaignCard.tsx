@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { db } from "@/api/firebase";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { Edit2, Trash2, Power, Clock } from 'lucide-react-native';
-
+import { Image } from 'expo-image';
 export const CampaignCard = ({ id, title, image, status, clicks, period, onEdit }: any) => {
   const toggleStatus = async () => {
     try {
@@ -22,7 +22,7 @@ export const CampaignCard = ({ id, title, image, status, clicks, period, onEdit 
   return (
     <View style={styles.card}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: image }} style={styles.image} />
+        <Image source={{ uri: image }} style={styles.image} contentFit="cover" transition={500}  cachePolicy="disk" />
         <View style={styles.overlay} />
         <View style={[styles.statusBadge, { backgroundColor: status === 'Aktif' ? '#065f46' : '#1e293b' }]}>
           <Text style={styles.statusText}>{status}</Text>

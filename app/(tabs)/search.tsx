@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, SafeAreaView, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
+import { View, Text,TouchableOpacity, Modal, SafeAreaView, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { db } from '@/api/firebase';
 import { collection, query, getDocs, where } from 'firebase/firestore';
 import ProductCard from '@/components/ProductCard';
 import { Filter, X, RotateCcw } from 'lucide-react-native';
+import { FlashList } from "@shopify/flash-list";
 
 export default function SearchPage() {
     const { q, brand: brandParam } = useLocalSearchParams();
@@ -89,13 +90,13 @@ export default function SearchPage() {
                 </TouchableOpacity>
             </View>
 
-            <FlatList
+            <FlashList
                 data={filteredProducts}
                 keyExtractor={(item) => item.id}
                 numColumns={2}
                 renderItem={({ item }) => <ProductCard product={item} />}
                 contentContainerStyle={styles.listContent}
-                columnWrapperStyle={styles.columnWrapper}
+                
             />
 
             <Modal visible={isFilterVisible} animationType="slide" presentationStyle="pageSheet">

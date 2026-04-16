@@ -1,10 +1,10 @@
 "use client";
 import { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Star, ShoppingCart, Check, ArrowRight } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Image } from 'expo-image';
 const { width } = Dimensions.get('window');
 
 interface ProductDetailProps {
@@ -45,7 +45,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
         <View style={{ width: '100%', aspectRatio: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 20, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }}>
           <Image
             source={{ uri: product.imageUrl || "https://via.placeholder.com/600" }}
-            style={{ width: '90%', height: '90%', resizeMode: 'contain' }}
+            style={{ width: '90%', height: '90%', resizeMode: 'contain' }} contentFit="cover" transition={500}  cachePolicy="disk" 
           />
           {product.status === "approved" && (
             <View style={{ position: 'absolute', top: 12, left: 12, backgroundColor: '#16a34a', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 100 }}>

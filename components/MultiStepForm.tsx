@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   View, Text, TextInput, TouchableOpacity, ScrollView, 
-  Image, ActivityIndicator, Alert, StyleSheet, Modal, FlatList
+   ActivityIndicator, Alert, StyleSheet, Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -16,7 +16,8 @@ import {
   Camera, ChevronRight, ChevronLeft, UploadCloud, 
   Hash, X
 } from 'lucide-react-native';
-
+import { FlashList } from "@shopify/flash-list";
+import { Image } from 'expo-image';
 export default function MultiStepMobileForm({ onSuccess, initialData }: any) {
   const [step, setStep] = useState(1);
   const [selectedSizes, setSelectedSizes] = useState<string[]>(initialData?.sizes || []);
@@ -210,7 +211,7 @@ export default function MultiStepMobileForm({ onSuccess, initialData }: any) {
           <View style={styles.sect}>
             <Text style={styles.label}>Ürün Fotoğrafı</Text>
             <View style={styles.imgArea}>
-              {imageUri ? <Image source={{uri: imageUri}} style={styles.fullImg}/> : <UploadCloud size={40} color="#4f46e5"/>}
+              {imageUri ? <Image source={{uri: imageUri}} style={styles.fullImg} contentFit="cover" transition={500}  cachePolicy="disk" /> : <UploadCloud size={40} color="#4f46e5"/>}
               <View style={styles.imgBar}>
                 <TouchableOpacity style={styles.iconBtn} onPress={() => pickImage(true)}><Camera size={18} color="white"/></TouchableOpacity>
                 <TouchableOpacity style={styles.iconBtn} onPress={() => pickImage(false)}><ImageIcon size={18} color="white"/></TouchableOpacity>
@@ -236,7 +237,7 @@ export default function MultiStepMobileForm({ onSuccess, initialData }: any) {
       <Modal visible={showCatModal} transparent animationType="slide">
         <View style={styles.mBack}><View style={styles.mSheet}>
             <View style={styles.mHead}><Text style={styles.mTitle}>Kategori Seç</Text><TouchableOpacity onPress={() => setShowCatModal(false)}><X color="white" /></TouchableOpacity></View>
-            <FlatList data={dbCategories} renderItem={({item}) => (
+            <FlashList data={dbCategories} renderItem={({item}) => (
               <TouchableOpacity style={styles.mItem} onPress={() => { setFormData({...formData, categoryId: item.id, subCategoryId: ''}); setShowCatModal(false); }}>
                 <Text style={styles.mItemTxt}>{item.title}</Text>
               </TouchableOpacity>
@@ -247,7 +248,7 @@ export default function MultiStepMobileForm({ onSuccess, initialData }: any) {
       <Modal visible={showSubCatModal} transparent animationType="slide">
         <View style={styles.mBack}><View style={styles.mSheet}>
             <View style={styles.mHead}><Text style={styles.mTitle}>Alt Kategori Seç</Text><TouchableOpacity onPress={() => setShowSubCatModal(false)}><X color="white" /></TouchableOpacity></View>
-            <FlatList data={activeSubCategories} renderItem={({item}) => (
+            <FlashList data={activeSubCategories} renderItem={({item}: {item: any}) => (
               <TouchableOpacity style={styles.mItem} onPress={() => { setFormData({...formData, subCategoryId: String(item.id)}); setShowSubCatModal(false); }}>
                 <Text style={styles.mItemTxt}>{item.title}</Text>
               </TouchableOpacity>

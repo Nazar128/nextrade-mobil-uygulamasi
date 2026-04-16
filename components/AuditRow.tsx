@@ -1,14 +1,14 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Package } from "lucide-react-native";
-
+import { Image } from 'expo-image';
 export const AuditRow = ({ product, onPreview, onReject }: any) => {
   const img = product.images?.[0] || product.image;
   return (
     <View style={styles.card}>
       <View style={styles.row}>
         <View style={styles.imgWrap}>
-          {img ? <Image source={{ uri: img }} style={styles.img} /> : <Package size={20} color="#1e293b" />}
+          {img ? <Image source={{ uri: img }} style={styles.img} contentFit="cover" transition={500}  cachePolicy="disk"  /> : <Package size={20} color="#1e293b" />}
         </View>
         <View style={styles.info}>
           <Text style={styles.name} numberOfLines={1}>{product.title}</Text>

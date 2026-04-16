@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native";
 import { Info, ShoppingCart, User, Search } from "lucide-react-native";
 import { usePathname, useRouter } from "expo-router";
 import { useTheme } from "@/context/ThemeContext";
 import SearchBar from "./SearchBar";
-
+import { Image } from 'expo-image';
 const Navbar = () => {
   const { theme } = useTheme();
   const pathname = usePathname();
@@ -19,7 +19,7 @@ const Navbar = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bg, borderBottomColor: theme.border }]}>
       <View style={styles.container}>
         <TouchableOpacity onPress={() => router.push("/")} activeOpacity={0.8}>
-          <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
+          <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" contentFit="cover" transition={500}  cachePolicy="disk" />
         </TouchableOpacity>
 
         <View style={styles.rightSection}>

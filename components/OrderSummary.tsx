@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { db, auth } from "@/api/firebase";
 import { doc, setDoc, onSnapshot, Unsubscribe } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-
+import { Image } from 'expo-image';
 type CartItem = {
   id: string;
   image: string;
@@ -134,7 +134,7 @@ const OrderSummary = ({ isFinalStep, addressData, paymentMethod }: OrderSummaryP
           <View key={item.id} style={styles.itemRow}>
             <View style={styles.itemInfo}>
               <View>
-                <Image source={{ uri: item.image }} style={styles.itemImage} />
+                <Image source={{ uri: item.image }} style={styles.itemImage} contentFit="cover" transition={500}  cachePolicy="disk"  />
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{item.quantity}</Text>
                 </View>

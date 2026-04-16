@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ActivityIndicator, Dimensions, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, Dimensions, SafeAreaView } from 'react-native';
 import { collection, query, orderBy, limit, onSnapshot, where, doc, deleteDoc } from "firebase/firestore";
 import { db, auth } from "@/api/firebase";
 import { formatDistanceToNow } from 'date-fns'; 
 import { tr } from 'date-fns/locale'; 
 import { ShoppingBag, MessageCircle, Star, Bell, X, ArrowRight, ChevronRight } from 'lucide-react-native';
-
+import { FlashList } from "@shopify/flash-list";
 export const ActivityFeed = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +69,7 @@ export const ActivityFeed = () => {
       {loading ? (
         <View style={styles.centerContainer}><ActivityIndicator color="#3b82f6" size="small" /></View>
       ) : (
-        <FlatList data={notifications} renderItem={renderItem} keyExtractor={(item) => item.id} contentContainerStyle={styles.listContent} ListEmptyComponent={<Text style={styles.emptyText}>Henüz bir bildirim yok.</Text>} />
+        <FlashList data={notifications} renderItem={renderItem} keyExtractor={(item) => item.id} contentContainerStyle={styles.listContent} ListEmptyComponent={<Text style={styles.emptyText}>Henüz bir bildirim yok.</Text>} />
       )}
       <Modal visible={!!selectedNotif} transparent animationType="slide" onRequestClose={() => setSelectedNotif(null)}>
         <View style={styles.modalOverlay}>

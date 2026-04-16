@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   View, 
-  Text, 
-  Image, 
+  Text,  
   TouchableOpacity, 
   StyleSheet, 
   Dimensions, 
@@ -15,7 +14,7 @@ import { db, auth } from "@/api/firebase";
 import { doc, setDoc, deleteDoc, onSnapshot, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRouter } from "expo-router";
-
+import { Image } from 'expo-image';
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width / 2 - 24;
 
@@ -139,7 +138,7 @@ const ProductCard = ({ product }: { product: any }) => {
         <View style={styles.imageContainer}>
           <Image 
             source={{ uri: product.imageUrl || product.image || "https://via.placeholder.com/150" }} 
-            style={styles.image}
+            style={styles.image} contentFit="cover" transition={500}  cachePolicy="disk" 
           />
           <TouchableOpacity 
             style={styles.favButton} 

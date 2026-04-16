@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, 
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, 
   ActivityIndicator, Dimensions, SafeAreaView 
 } from 'react-native';
 import { db, auth } from "@/api/firebase";
@@ -12,7 +12,7 @@ import {
 } from 'lucide-react-native';
 import { onAuthStateChanged } from "firebase/auth";
 import ProductCard from '@/components/ProductCard';
-
+import { Image } from 'expo-image';
 const { width } = Dimensions.get('window');
 
 export default function StoreProfileScreen() {
@@ -127,7 +127,7 @@ export default function StoreProfileScreen() {
           <View style={styles.avatarWrapper}>
             <View style={styles.avatarContainer}>
               {seller.photoURL ? (
-                <Image source={{ uri: seller.photoURL }} style={styles.avatar} />
+                <Image source={{ uri: seller.photoURL }} style={styles.avatar} contentFit="cover" transition={500}  cachePolicy="disk"/>
               ) : (
                 <View style={styles.avatarPlaceholder}>
                   <Store size={48} color="#1e293b" />

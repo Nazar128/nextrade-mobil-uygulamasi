@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform} from 'react-native';
 import { Mail, Phone, MapPin, Send, MessageSquare, Globe, CheckCircle2, AlertCircle, X } from 'lucide-react-native';
-
+import { Image } from 'expo-image';
 interface BannerState {
   show: boolean;
   type: 'success' | 'error';
@@ -144,7 +144,7 @@ export default function ContactPage() {
           </View>
 
           <View style={styles.imageCard}>
-            <Image source={{ uri: 'https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=1000' }} style={styles.mapImage} />
+            <Image source={{ uri: 'https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=1000' }} style={styles.mapImage} contentFit="cover" transition={500}  cachePolicy="disk"  />
             <View style={styles.imageOverlay}>
               <Globe size={14} color="#fff" />
               <Text style={styles.overlayText}>Global Operasyon Merkezi</Text>

@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Dimensions, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, ScrollView,  TouchableOpacity, ActivityIndicator, Dimensions, SafeAreaView } from "react-native";
 import { db, auth } from "@/api/firebase";
 import { collection, query, getDocs, where, orderBy, doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Store, Clock, LayoutGrid, List as ListIcon, ShoppingBag, Heart, ArrowRight } from "lucide-react-native";
-
+import { Image } from 'expo-image';
 const { width } = Dimensions.get("window");
 
 interface Product {
@@ -167,7 +167,7 @@ export default function FollowedStoresPage() {
                   ]}
                 >
                   <View style={[styles.imageWrapper, viewMode === "list" && styles.imageWrapperList]}>
-                    <Image source={{ uri: product.imageUrl }} style={styles.productImage} />
+                    <Image source={{ uri: product.imageUrl }} style={styles.productImage} contentFit="cover" transition={500}  cachePolicy="disk"  />
                     <View style={styles.newBadge}>
                       <Text style={styles.newBadgeText}>YENİ</Text>
                     </View>

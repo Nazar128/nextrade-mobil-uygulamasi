@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardTypeOptions, FlatList, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardTypeOptions, Dimensions, ScrollView } from 'react-native';
 import { db, auth } from "@/api/firebase";
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { MapPin, Plus, Trash2, Edit2, Home, Briefcase, X, User, Phone, GraduationCap, Sun } from 'lucide-react-native';
-
+import { FlashList } from "@shopify/flash-list";
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = (width - 50) / 2;
 
@@ -127,7 +127,7 @@ export default function AddressesPage() {
 
   return (
     <View style={styles.container}>
-      <FlatList
+      <FlashList
         data={addresses}
         keyExtractor={(item) => item.id}
         numColumns={2}
@@ -144,7 +144,7 @@ export default function AddressesPage() {
           </>
         }
         contentContainerStyle={{ padding: 15, paddingBottom: 40 }}
-        columnWrapperStyle={{ justifyContent: 'space-between' }}
+        
       />
 
       <Modal visible={isModalOpen} animationType="slide" transparent={true} onRequestClose={() => setIsModalOpen(false)}>

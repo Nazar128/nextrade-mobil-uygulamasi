@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, 
-  TouchableOpacity, Image, ActivityIndicator, 
+  TouchableOpacity, ActivityIndicator, 
   ScrollView, Alert 
 } from 'react-native';
 import { Star, Camera, ChevronRight, AlertCircle, CheckCircle2, X, ArrowUpDown } from 'lucide-react-native';
@@ -10,7 +10,7 @@ import { db, auth, storage } from "@/api/firebase";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, onSnapshot, doc, getDoc} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { sendNotification } from "@/lib/notifications";
-
+import { Image } from 'expo-image';
 const CommentSection = ({ productId, product }: { productId: string, product: any }) => {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
   const [userRating, setUserRating] = useState(0);
@@ -205,7 +205,7 @@ const CommentSection = ({ productId, product }: { productId: string, product: an
                   <Text style={styles.dateText}>{item.date}</Text>
                 </View>
                 <Text style={styles.commentBody}>{item.comment}</Text>
-                {item.reviewImage && <Image source={{ uri: item.reviewImage }} style={styles.reviewImage} />}
+                {item.reviewImage && <Image source={{ uri: item.reviewImage }} style={styles.reviewImage} contentFit="cover" transition={500}  cachePolicy="disk"  />}
               </View>
             ))
           ) : (
@@ -230,7 +230,7 @@ const CommentSection = ({ productId, product }: { productId: string, product: an
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 {imageUri && (
                   <View style={styles.previewContainer}>
-                    <Image source={{ uri: imageUri }} style={styles.previewImg} />
+                    <Image source={{ uri: imageUri }} style={styles.previewImg} contentFit="cover" transition={500}  cachePolicy="disk"  />
                     <TouchableOpacity onPress={() => setImageUri(null)} style={styles.removeImg}><X size={10} color="#fff" /></TouchableOpacity>
                   </View>
                 )}

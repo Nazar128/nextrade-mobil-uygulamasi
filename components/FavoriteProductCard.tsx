@@ -46,7 +46,7 @@ const FavoriteProductCard = ({ product, onRemove }: Props) => {
         style={styles.card}
       >
         <View style={styles.imageContainer}>
-          <Image source={{ uri: displayImage }} style={styles.image} contentFit="cover" transition={500} />
+          <Image source={{ uri: displayImage }} style={styles.image} contentFit="cover" transition={500} cachePolicy="disk"  />
         </View>
 
         <View style={styles.infoContainer}>

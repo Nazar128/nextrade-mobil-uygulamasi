@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, Text, ScrollView, TextInput, TouchableOpacity, 
-  Image, ActivityIndicator, SafeAreaView, StyleSheet, 
+   ActivityIndicator, SafeAreaView, StyleSheet, 
   Alert, KeyboardAvoidingView, Platform 
 } from 'react-native';
 import { 
@@ -14,7 +14,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth, storage } from "@/api/firebase";
 import * as ImagePicker from 'expo-image-picker';
-
+import { Image } from 'expo-image';
 export default function StoreSettingsMobile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -138,7 +138,7 @@ export default function StoreSettingsMobile() {
                   {uploading ? (
                     <ActivityIndicator color="#6366f1" />
                   ) : (
-                    <Image source={{ uri: storeData.imageUrl }} style={styles.avatar} />
+                    <Image source={{ uri: storeData.imageUrl }} style={styles.avatar} contentFit="cover" transition={500}  cachePolicy="disk" />
                   )}
                   <View style={styles.cameraIcon}>
                     <Camera size={16} color="#fff" />

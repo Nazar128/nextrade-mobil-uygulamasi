@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Dimensions } from "react-native";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { db } from "@/api/firebase";
 import { collection, query, where, limit, getDocs, orderBy } from "firebase/firestore";
 import ProductCard from "./ProductCard";
-
+import { FlashList } from "@shopify/flash-list";
 const { width } = Dimensions.get("window");
 const FeaturedProducts = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const flatListRef = React.useRef<FlatList>(null);
+  const flashListRef = React.useRef<any>(null);
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
@@ -31,8 +31,8 @@ const FeaturedProducts = () => {
   }, []);
 
   const scrollToIndex = (direction: "next" | "prev") => {
-    if (!flatListRef.current) return;
-    flatListRef.current.scrollToOffset({
+    if (!flashListRef.current) return;
+    flashListRef.current.scrollToOffset({
       offset: direction === "next" ? width * 0.8 : 0,
       animated: true,
     });
@@ -64,8 +64,8 @@ const FeaturedProducts = () => {
         </View>
       </View>
 
-      <FlatList
-        ref={flatListRef}
+      <FlashList
+        ref={flashListRef}
         data={products}
         keyExtractor={(item) => item.id}
         horizontal

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ImageBackground, StyleSheet, Dimensions } from 'react-native';
-
+import { Image } from 'expo-image';
 const { height, width } = Dimensions.get('window');
 
 interface AboutHeroProps {
@@ -16,6 +16,7 @@ const AboutHero = ({ title, subTitle, bgImage }: AboutHeroProps) => {
         source={{ uri: bgImage }}
         style={styles.background}
         resizeMode="cover"
+        
       >
         <View style={styles.overlay}>
           <View style={styles.content}>

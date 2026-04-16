@@ -5,6 +5,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/api/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Mail, Lock, LogIn } from 'lucide-react-native';
+import {  sendPasswordResetEmail } from 'firebase/auth'
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -29,7 +30,7 @@ export default function LoginScreen() {
                 if (role === "admin") {
                     router.replace("/admin/page");
                 } else if (role === "seller") {
-                    router.replace("/seller/page");
+                    router.replace("/seller/dashboard");
                 } else {
                     router.replace("/(tabs)");
                 }
@@ -42,6 +43,23 @@ export default function LoginScreen() {
             setLoading(false);
         }
     };
+    const handleForgotPassword = async () => {
+        if (!email) {
+            Alert.alert("Uyarı", "Şifrenizi sıfırlamak için lütfen e-postanızı giriniz.");
+                return;
+        }
+        try {
+            await sendPasswordResetEmail(auth, email);
+            Alert.alert("Başarılı"," Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.Lütfen gelen kutunuzu kontrol edin. ");
+        }
+        catch (error: any) {
+            let errorMessage = "Bir hata oluştu";
+            if (error.code === 'auth/user-not-found') {
+                errorMessage = "Bu e-posta adresine kayıtlı bir kulllanıcı bulunamadı.";
+            }
+            Alert.alert("Hata", errorMessage);
+        }
+    } 
 
     return (
         <View style={styles.container}>
@@ -69,7 +87,7 @@ export default function LoginScreen() {
                 <View style={styles.inputContainer}>
                     <View style={styles.labelRow}>
                         <Text style={styles.label}>Şifre</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={handleForgotPassword}>
                             <Text style={styles.forgotText}>Şifremi Unuttum</Text>
                         </TouchableOpacity>
                     </View>

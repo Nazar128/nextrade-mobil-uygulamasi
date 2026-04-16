@@ -1,7 +1,7 @@
 import React from "react";
-import { Modal, View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from "react-native";
+import { Modal, View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from "react-native";
 import { X, Check, AlertCircle } from "lucide-react-native";
-
+import { Image } from 'expo-image';
 export const ProductPreviewModal = ({ isOpen, onClose, product, onApprove, onReject }: any) => {
   if (!isOpen || !product) return null;
   const imgs = Array.isArray(product.images) ? product.images : (product.image ? [product.image] : []);
@@ -28,7 +28,7 @@ export const ProductPreviewModal = ({ isOpen, onClose, product, onApprove, onRej
           <ScrollView showsVerticalScrollIndicator={false}>
             <ScrollView horizontal pagingEnabled style={styles.gallery}>
               {imgs.map((img: string, i: number) => (
-                <Image key={i} source={{ uri: img }} style={styles.galleryImg} resizeMode="contain" />
+                <Image key={i} source={{ uri: img }} style={styles.galleryImg} resizeMode="contain" contentFit="cover" transition={500}  cachePolicy="disk"  />
               ))}
             </ScrollView>
 

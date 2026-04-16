@@ -1,8 +1,8 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, Linking, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Linking, ScrollView } from "react-native";
 import { Camera, BriefcaseBusiness, SquareTerminal, Send } from "lucide-react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-
+import { Image } from 'expo-image';
 type UserRole = "guest" | "customer" | "seller";
 
 const mockUser = {
@@ -21,7 +21,7 @@ const Footer = () => {
   return (
     <View style={styles.footerContainer}>
       <View style={styles.brandSection}>
-        <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
+        <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" contentFit="cover" transition={500}  cachePolicy="disk" />
         <Text style={styles.brandDescription}>Modern e-ticaret deneyimi.</Text>
       </View>
 

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet, Dimensions } from 'react-native';
 import { db } from '@/api/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import AboutHero from '@/components/AboutHero';
 import InfoCard from '@/components/InfoCard';
 import * as Icons from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 
 const { width } = Dimensions.get('window');
 
@@ -61,7 +62,7 @@ export default function AboutPage() {
 
             <View style={styles.visionSection}>
                 <View style={styles.imageContainer}>
-                    <Image source={{ uri: data?.visionImg }} style={styles.visionImage} />
+                    <Image source={{ uri: data?.visionImg }} style={styles.visionImage} contentFit="cover" transition={500}  cachePolicy="disk" />
                     <View style={styles.miniDescBadge}>
                         <Text style={styles.miniDescText}>{data?.visionMiniDesc}</Text>
                     </View>

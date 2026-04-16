@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
-import { View, TextInput, Text, FlatList, TouchableOpacity, ActivityIndicator, SafeAreaView, Modal, StyleSheet } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, ActivityIndicator, SafeAreaView, Modal, StyleSheet } from 'react-native';
 import { Package, Tag, Layers, X, ArrowLeft } from 'lucide-react-native';
 import { db } from '@/api/firebase';
 import { collection, query, getDocs, where, limit } from 'firebase/firestore';
 import { useRouter } from 'expo-router';
-
+import { FlashList } from "@shopify/flash-list";
 interface SearchResult { id: string; title: string; type: 'product' | 'brand' | 'category'; targetId: string | number; }
 
 const SearchBar = forwardRef((props, ref) => {
@@ -75,7 +75,7 @@ const SearchBar = forwardRef((props, ref) => {
             </TouchableOpacity>
           )}
         </View>
-        <FlatList data={results} keyExtractor={(item, index) => `${item.id}-${index}`} renderItem={renderItem} contentContainerStyle={styles.listContent} ListEmptyComponent={() => (searchTerm.length >= 2 && !loading ? (<View style={styles.emptyState}><Text style={styles.emptyText}>Sonuç bulunamadı...</Text></View>) : null)} />
+        <FlashList data={results} keyExtractor={(item, index) => `${item.id}-${index}`} renderItem={renderItem} contentContainerStyle={styles.listContent} ListEmptyComponent={() => (searchTerm.length >= 2 && !loading ? (<View style={styles.emptyState}><Text style={styles.emptyText}>Sonuç bulunamadı...</Text></View>) : null)} />
       </SafeAreaView>
     </Modal>
   );

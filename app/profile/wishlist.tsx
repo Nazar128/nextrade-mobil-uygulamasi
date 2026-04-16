@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, SafeAreaView, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity,  ActivityIndicator, SafeAreaView, Alert } from 'react-native';
 import { Heart, Trash2, ArrowRight } from 'lucide-react-native';
 import { db, auth } from "@/api/firebase";
 import { collection, onSnapshot, doc, deleteDoc, writeBatch } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import FavoriteProductCard from '@/components/FavoriteProductCard';
-
+import { FlashList } from "@shopify/flash-list";
 export default function FavoritesPage({ navigation }: any) {
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,7 +79,7 @@ export default function FavoritesPage({ navigation }: any) {
       </View>
 
       {favorites.length > 0 ? (
-        <FlatList
+        <FlashList
           data={favorites}
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Platform } from "react-native";
 import { Stack, usePathname } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -7,13 +7,52 @@ import 'react-native-reanimated';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { db, auth } from "@/api/firebase";
-import { doc, onSnapshot, getDoc } from "firebase/firestore";
+import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import MaintenancePage from "@/components/MaintenancePage";
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync({
+      projectId: 'a218eeb7-b181-40eb-9db0-931289e63c64',
+    })).data;
+  }
+
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+  return token;
+}
 
 export default function RootLayout() {
   const [isMaintenance, setIsMaintenance] = useState(false);
@@ -26,9 +65,22 @@ export default function RootLayout() {
 
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
         const userData = userDoc.data();
         setIsAdmin(userData?.role === "admin");
+
+        try {
+          const token = await registerForPushNotificationsAsync();
+          if (token) {
+            await updateDoc(userRef, {
+              expoPushToken: token,
+              lastLogin: new Date().toISOString()
+            });
+          }
+        } catch (error) {
+          console.error(error);
+        }
       } else {
         setIsAdmin(false);
       }
@@ -42,7 +94,7 @@ export default function RootLayout() {
     });
 
     return () => {
-      unsubAuth();
+      if (unsubAuth) unsubAuth();
       if (unsubSettings) unsubSettings();
     };
   }, []);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  View, Text, Image, TouchableOpacity, FlatList, 
+  View, Text, TouchableOpacity, 
   StyleSheet, Modal, ActivityIndicator, Alert, ScrollView 
 } from 'react-native';
 import { 
@@ -10,7 +10,8 @@ import {
 import { collection, query, where, onSnapshot, deleteDoc, doc, getDocs, orderBy } from "firebase/firestore";
 import { auth, db } from '@/api/firebase';
 import ManagerStats from '@/components/ManagerStats';
-
+import { FlashList } from "@shopify/flash-list";
+import { Image } from 'expo-image';
 export default function ProductListMobile({ onEdit }: { onEdit: (p: any) => void }) {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +84,7 @@ export default function ProductListMobile({ onEdit }: { onEdit: (p: any) => void
 
   return (
     <View style={styles.container}>
-      <FlatList
+      <FlashList
         data={products}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
@@ -100,7 +101,7 @@ export default function ProductListMobile({ onEdit }: { onEdit: (p: any) => void
           <View style={styles.productCard}>
             <View style={styles.cardHeader}>
               <View style={styles.imgContainer}>
-                <Image source={{ uri: item.imageUrl }} style={styles.productImg} />
+                <Image source={{ uri: item.imageUrl }} style={styles.productImg} contentFit="cover" transition={500}  cachePolicy="disk"  />
                 <View style={[styles.statusDot, { backgroundColor: item.status === 'pending' ? '#f59e0b' : '#10b981' }]} />
               </View>
               <View style={styles.productInfo}>

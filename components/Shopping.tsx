@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { Trash2, Plus, Minus, ShoppingBag, CreditCard, AlertCircle } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-
+import { Image } from 'expo-image';
 type CartItem = {
   id: string;
   image: string;
@@ -57,7 +57,7 @@ const Shopping = () => {
           cartItems.map((item) => (
             <View key={item.id} style={styles.card}>
               <View style={styles.imageContainer}>
-                <Image source={{ uri: item.image }} style={styles.image} resizeMode="contain" />
+                <Image source={{ uri: item.image }} style={styles.image} resizeMode="contain" contentFit="cover" transition={500}  cachePolicy="disk"  />
               </View>
               <View style={styles.info}>
                 <Text style={styles.brand}>{item.brand}</Text>

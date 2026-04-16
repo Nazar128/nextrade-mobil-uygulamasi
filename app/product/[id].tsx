@@ -5,9 +5,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { db, auth } from "@/api/firebase";
 import { collection, query, where, getDocs, setDoc, getDoc, doc, updateDoc, increment } from "firebase/firestore";
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text,TouchableOpacity, ActivityIndicator } from 'react-native';
 import CommentSection from '@/components/CommentSection';
 import QuestionSection from '@/components/QuestionSection';
+import { FlashList } from "@shopify/flash-list";
 
 const Page = () => {
     const params = useLocalSearchParams();
@@ -181,7 +182,7 @@ const Page = () => {
     );
 
     return (
-        <FlatList
+        <FlashList
             data={[]} 
             renderItem={null}
             ListHeaderComponent={renderHeader}

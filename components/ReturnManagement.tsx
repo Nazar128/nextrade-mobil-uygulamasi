@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  View, Text, TouchableOpacity, ScrollView, Image, Modal, 
+  View, Text, TouchableOpacity, ScrollView, Modal, 
   StyleSheet, TextInput, ActivityIndicator, Dimensions, SafeAreaView 
 } from 'react-native';
 import { db } from "@/api/firebase";
@@ -9,7 +9,7 @@ import {
   AlertCircle, Check, ArrowLeft, Send, 
   PackageSearch, X 
 } from 'lucide-react-native';
-
+import { Image } from 'expo-image';
 interface ReturnModalProps {
   order: any;
   onClose: () => void;
@@ -80,7 +80,7 @@ export default function ReturnManagement({ order, onClose, visible }: ReturnModa
                   const isSelected = selectedItems.includes(itemId);
                   return (
                     <TouchableOpacity key={idx} onPress={() => toggleItem(itemId)} activeOpacity={0.7} style={[styles.itemCard, isSelected && styles.itemCardSelected]}>
-                      <Image source={{ uri: item.imageUrl || item.image }} style={styles.itemImage} />
+                      <Image source={{ uri: item.imageUrl || item.image }} style={styles.itemImage} contentFit="cover" transition={500}  cachePolicy="disk"  />
                       <View style={styles.itemInfo}>
                         <Text style={styles.itemTitle} numberOfLines={2}>{item.title}</Text>
                         <Text style={styles.itemPrice}>{item.price.toLocaleString('tr-TR')} TL</Text>

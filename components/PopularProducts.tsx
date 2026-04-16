@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import { Sparkles } from "lucide-react-native";
 import { db } from "@/api/firebase";
 import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import ProductCard from "./ProductCard";
-
+import { FlashList } from "@shopify/flash-list";
 const PopularProducts = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,12 +55,11 @@ const PopularProducts = () => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
+      <FlashList
         data={products}
         keyExtractor={(item) => item.id}
         numColumns={2}
         scrollEnabled={false}
-        columnWrapperStyle={styles.row}
         renderItem={({ item }) => <ProductCard product={item} />}
         contentContainerStyle={styles.listContainer}
       />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, TextInput, ActivityIndicator, Modal, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, TextInput, ActivityIndicator, Modal } from 'react-native';
 import { Plus, Search, X, UploadCloud } from 'lucide-react-native';
 import { db, storage } from "@/api/firebase";
 import { collection, onSnapshot, query, orderBy, addDoc, doc, updateDoc } from "firebase/firestore";
@@ -8,7 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { CampaignCard } from '@/components/CampaignCard';
 import AboutSettings from '@/components/AboutSettings';
 import LegalManager from '@/components/LegalManager';
-
+import { Image } from 'expo-image';
 export default function CMSPage() {
   const [activeTab, setActiveTab] = useState<'campaigns' | 'about' | 'support'>('campaigns');
   const [campaigns, setCampaigns] = useState<any[]>([]);
@@ -121,7 +121,7 @@ export default function CMSPage() {
             </View>
             <ScrollView style={{padding: 20}}>
               <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-                {selectedImage ? <Image source={{uri: selectedImage}} style={styles.previewImg} /> : (
+                {selectedImage ? <Image source={{uri: selectedImage}} style={styles.previewImg} contentFit="cover" transition={500}  cachePolicy="disk"  /> : (
                   <View style={{alignItems: 'center'}}><UploadCloud size={24} color="#475569"/><Text style={styles.pickerText}>Görsel Seç</Text></View>
                 )}
               </TouchableOpacity>

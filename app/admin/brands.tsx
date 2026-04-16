@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image, Modal, ActivityIndicator, Dimensions, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,Modal, ActivityIndicator, Dimensions, SafeAreaView } from 'react-native';
 import { db, storage } from "@/api/firebase";
 import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Award, Plus, Trash2, Globe, Image as ImageIcon, X, Calendar } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { Image } from 'expo-image';
 
 const { width } = Dimensions.get('window');
 
@@ -70,11 +71,11 @@ export default function BrandsPage() {
                     brandsList.map((brand) => (
                         <View key={brand.id} style={styles.card}>
                             <View style={styles.imageContainer}>
-                                <Image source={{ uri: brand.logo }} style={styles.image} resizeMode="cover" />
+                                <Image source={{ uri: brand.logo }} style={styles.image} resizeMode="cover" contentFit="cover" transition={500}  cachePolicy="disk"  />
                                 <View style={styles.overlay} />
                                 <View style={[styles.statusBadge, { backgroundColor: '#10b981' }]}><Text style={styles.statusText}>AKTİF</Text></View>
                                 <View style={{ position: 'absolute', bottom: 15, left: 15 }}>
-                                    <Image source={{ uri: brand.logo }} style={{ width: 50, height: 50, borderRadius: 10, backgroundColor: 'white' }} resizeMode="contain" />
+                                    <Image source={{ uri: brand.logo }} style={{ width: 50, height: 50, borderRadius: 10, backgroundColor: 'white' }} resizeMode="contain" contentFit="cover" transition={500}  cachePolicy="disk"  />
                                 </View>
                             </View>
                             <View style={styles.content}>

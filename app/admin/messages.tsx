@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, ActivityIndicator, SafeAreaView, TextInput, Alert, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, ActivityIndicator, SafeAreaView, TextInput, Alert } from 'react-native';
 import { db } from "@/api/firebase";
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { Mail, Trash2, X, Sparkles, HelpCircle, ChevronRight, Hash, Check } from 'lucide-react-native';
+import { FlashList } from "@shopify/flash-list";
 
 export default function AdminMessages() {
     const [messages, setMessages] = useState<any[]>([]);
@@ -111,7 +112,7 @@ export default function AdminMessages() {
                 <View style={styles.headerIcon}><Mail size={20} color="#2563eb" /></View>
             </View>
 
-            <FlatList 
+            <FlashList 
                 data={messages}
                 renderItem={renderMessageItem}
                 keyExtractor={item => item.id}

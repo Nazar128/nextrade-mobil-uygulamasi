@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Image, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,  ScrollView, Alert } from 'react-native';
 import { db, storage } from '@/api/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from 'expo-image-picker';
 import { Save, UploadCloud, Trash2 } from 'lucide-react-native';
-
+import { Image } from 'expo-image';
 export default function AboutSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -47,7 +47,7 @@ export default function AboutSettings() {
     <View style={styles.container}>
       <Text style={styles.label}>HERO GÖRSELİ</Text>
       <TouchableOpacity style={styles.imgBox} onPress={() => pickImage('heroBg')}>
-        {data.heroBg ? <Image source={{uri: data.heroBg}} style={styles.fullImg} /> : <UploadCloud color="#475569" />}
+        {data.heroBg ? <Image source={{uri: data.heroBg}} style={styles.fullImg} contentFit="cover" transition={500}  cachePolicy="disk"  /> : <UploadCloud color="#475569" />}
       </TouchableOpacity>
 
       <Text style={styles.label}>VİZYON & MİSYON</Text>
@@ -55,7 +55,7 @@ export default function AboutSettings() {
       <TextInput style={[styles.input, {height: 80}]} multiline placeholder="Vizyon Açıklaması" placeholderTextColor="#475569" value={data.visionDesc} onChangeText={t => setData({...data, visionDesc: t})} />
       
       <TouchableOpacity style={[styles.imgBox, {height: 120}]} onPress={() => pickImage('visionImg')}>
-        {data.visionImg ? <Image source={{uri: data.visionImg}} style={styles.fullImg} /> : <Text style={{color: '#475569', fontSize: 10}}>Vizyon Görseli Seç</Text>}
+        {data.visionImg ? <Image source={{uri: data.visionImg}} style={styles.fullImg} contentFit="cover" transition={500}  cachePolicy="disk"  /> : <Text style={{color: '#475569', fontSize: 10}}>Vizyon Görseli Seç</Text>}
       </TouchableOpacity>
 
       <Text style={styles.label}>İSTATİSTİKLER</Text>

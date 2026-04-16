@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Animated, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Animated, ActivityIndicator } from "react-native";
 import { ArrowRight, ChevronRight } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
 import { db } from "@/api/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
-
+import { FlashList } from "@shopify/flash-list";
 const { width } = Dimensions.get("window");
 const HERO_HEIGHT = 420;
 
@@ -13,7 +13,7 @@ const HeroSection = () => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
+  const flashListRef = useRef<any>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -42,9 +42,9 @@ const HeroSection = () => {
     if (data.length <= 1) return;
     let timer = setInterval(() => {
       if (selectedIndex < data.length - 1) {
-        flatListRef.current?.scrollToIndex({ index: selectedIndex + 1, animated: true });
+        flashListRef.current?.scrollToIndex({ index: selectedIndex + 1, animated: true });
       } else {
-        flatListRef.current?.scrollToIndex({ index: 0, animated: true });
+        flashListRef.current?.scrollToIndex({ index: 0, animated: true });
       }
     }, 5000);
     return () => clearInterval(timer);
@@ -71,7 +71,7 @@ const HeroSection = () => {
     return (
       <View style={styles.slide}>
         <Animated.View style={[styles.imageContainer, { transform: [{ scale }] }]}>
-          <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" transition={500} />
+          <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" transition={500} cachePolicy="disk" />
           <View style={styles.overlay} />
         </Animated.View>
         <LinearGradient
@@ -120,8 +120,8 @@ const HeroSection = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        ref={flatListRef}
+      <FlashList
+        ref={flashListRef}
         data={data}
         renderItem={renderItem}
         horizontal

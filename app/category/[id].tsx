@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Dimensions, StyleSheet } from "react-native";
+import { View, Text, ActivityIndicator, Dimensions, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { db } from "@/api/firebase";
 import { collection, query, where, orderBy, onSnapshot, limit, QueryConstraint, getDocs } from "firebase/firestore";
 import { PackageX } from 'lucide-react-native'; 
 import ProductCard from '@/components/ProductCard';
 import { ProductFilters } from '@/components/ProductFilters';
+import { FlashList } from "@shopify/flash-list";
 
 const CategoryPage = () => {
     const router = useRouter();
@@ -100,7 +101,7 @@ const CategoryPage = () => {
 
     return (
         <View style={styles.mainContainer}>
-            <FlatList
+            <FlashList
                 data={products}
                 keyExtractor={(item) => item.id}
                 numColumns={2}
