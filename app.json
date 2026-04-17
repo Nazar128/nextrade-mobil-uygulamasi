@@ -7,6 +7,11 @@
     "icon": "./assets/images/icon.png",
     "scheme": "nextrade",
     "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F172A"
+    },
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
@@ -16,7 +21,7 @@
       "googleServicesFile": "./google-services.json",
       "package": "com.nazar.nextrade",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F172A",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
       "permissions": [

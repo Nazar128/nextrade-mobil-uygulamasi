@@ -12,6 +12,9 @@ import { onAuthStateChanged } from "firebase/auth";
 import MaintenancePage from "@/components/MaintenancePage";
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import CustomSplashScreen from "./(tabs)/splash";
+import * as Font from 'expo-font';
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -59,6 +62,8 @@ export default function RootLayout() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
+  const [appIsReady, setAppIsReady] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     let unsubSettings: () => void;
@@ -99,6 +104,29 @@ export default function RootLayout() {
     };
   }, []);
 
+  useEffect(() => {
+    async function prepare() {
+      try {
+        await Font.loadAsync({
+          'MainFont': require('./assets/fonts/Inter-Bold.tsx'),
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+      }
+    }
+    prepare();
+  }, []);
+
+  const handleSplashFinish = () => {
+    setShowSplash(false);
+  }
+  if (showSplash) {
+    return <CustomSplashScreen onFinish={handleSplashFinish} />
+  }
+
+
   const isAdminPath = pathname.startsWith('/admin');
 
   if (loading) {
@@ -119,19 +147,17 @@ export default function RootLayout() {
   }
 
   return (
+    <ErrorBoundary>
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
         <ThemeProvider>
           <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="admin" />
-            <Stack.Screen name="seller" />
-            <Stack.Screen name="profile" />
-            <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+            
           </Stack>
           <StatusBar style="light" />
         </ThemeProvider>
       </AuthProvider>
     </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }

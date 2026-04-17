@@ -84,15 +84,15 @@ const FeaturedProducts = () => {
 };
 
 const styles = StyleSheet.create({
-  section: { paddingVertical: 30, paddingHorizontal: 16,  backgroundColor: "#0f172a" },
-  loaderContainer: { height: 200, justifyContent: "center", alignItems: "center" },
-  header: { flexDirection: "row", justifyContent: "center", alignItems: "flex-end", paddingHorizontal: 20, marginBottom: 20 },
-  subTitle: { color: "#3b82f6", fontSize: 10, fontWeight: "bold", letterSpacing: 2, marginBottom: 4 },
-  title: { color: "#FFF", fontSize: 28, fontWeight: "900", letterSpacing: -0.5 },
+  section: { paddingVertical: 20, paddingHorizontal: 1,  backgroundColor: "#0f172a" },
+  loaderContainer: { height: 180, justifyContent: "center", alignItems: "center" },
+  header: { flexDirection: "row", justifyContent: "center", alignItems: "flex-end", paddingHorizontal: 20, marginBottom: 20,},
+  subTitle: { color: "#3b82f6", fontSize: 10, fontWeight: "bold", letterSpacing: 2, marginBottom: 4  },
+  title: { color: "#FFF", fontSize: 28, fontWeight: "900", letterSpacing: -0.5, marginRight:12  },
   navButtons: { flexDirection: "row", gap: 8 },
   navButton: { width: 40, height: 40, borderRadius: 12, borderWidth: 1, borderColor: "rgba(255,255,255,0.1)", justifyContent: "center", alignItems: "center", backgroundColor: "rgba(255,255,255,0.05)" },
   listContent: { paddingHorizontal: 4 ,justifyContent: "center", alignItems: "center"},
-  cardWrapper: { width: width * 0.7, marginRight: 2}
+  cardWrapper: { width: width * 0.5, marginRight: 2}
 });
 
 export default FeaturedProducts;

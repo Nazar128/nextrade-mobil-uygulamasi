@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Animated, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image,Animated, ActivityIndicator } from "react-native";
 import { ArrowRight, ChevronRight } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Image } from "expo-image";
+
 import { db } from "@/api/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { FlashList } from "@shopify/flash-list";
@@ -71,14 +71,14 @@ const HeroSection = () => {
     return (
       <View style={styles.slide}>
         <Animated.View style={[styles.imageContainer, { transform: [{ scale }] }]}>
-          <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" transition={500} cachePolicy="disk" />
+          <Image source={{ uri: item.image }} style={styles.image}  />
           <View style={styles.overlay} />
         </Animated.View>
         <LinearGradient
           colors={["rgba(0, 0, 0, 0.85)", "rgba(0, 0, 0, 0.4)", "rgba(0, 0, 0, 0.1)", "transparent"]}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
-          style={styles.gradient}
+       
         />
         <View style={styles.content}>
           <View style={styles.badge}>
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   imageContainer: { ...StyleSheet.absoluteFillObject, borderRadius: 12, marginHorizontal: 15, overflow: 'hidden' },
   image: { width: "100%", height: "100%" },
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.15)' },
-  gradient: { ...StyleSheet.absoluteFillObject, marginHorizontal: 15, borderRadius: 12 },
+  
   content: { position: "absolute", zIndex: 10, left: 35, right: 35, bottom: 65 },
   badge: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(255,255,255,0.08)", alignSelf: "flex-start", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,255,255,0.15)", marginBottom: 12 },
   badgeText: { color: "#FFF", fontSize: 10, fontWeight: "600" },

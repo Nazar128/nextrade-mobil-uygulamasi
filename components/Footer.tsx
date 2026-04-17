@@ -81,7 +81,7 @@ const Footer = () => {
 const styles = StyleSheet.create({
   footerContainer: { backgroundColor: "#0f172a", padding: 24, paddingTop: 40, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.1)" },
   brandSection: { alignItems: "center", marginBottom: 32 },
-  logo: { width: 180, height: 45, marginBottom: 8 },
+  logo: { width: 300, height: 45, marginBottom: 8 },
   brandDescription: { color: "#94a3b8", fontSize: 14 },
   gridSection: { flexDirection: "row", justifyContent: "space-between", marginBottom: 32 },
   column: { flex: 1 },

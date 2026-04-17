@@ -6,16 +6,15 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import PopularProducts from "@/components/PopularProducts";
 import BestSellers from "@/components/BestSellers";
 import Footer from "@/components/Footer";
-import { Text } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { CategoryBar } from "@/components/CategoryBar";
 import CategorySection from "@/components/CategorySection";
 
 export default function HomeScreen() {
   const router = useRouter();
+  //throw new Error("NexTrade Hata Tasarım Testi");
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <TouchableOpacity onPress={()=> router.push("/profile/page")}><Text>Profilim</Text></TouchableOpacity>
       <CategoryBar />
       <HeroSection />
       <View style={styles.content}>
